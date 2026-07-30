@@ -1,0 +1,287 @@
+/* ===============================
+   CYBERPORTFOLIO V2
+   Author: Charles Kernel
+================================== */
+
+:root{
+    --bg:#061321;
+    --bg2:#0d1f36;
+    --primary:#2f80ff;
+    --secondary:#63b3ff;
+    --text:#ffffff;
+    --muted:#b8c5d6;
+    --card:rgba(255,255,255,.06);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    scroll-behavior:smooth;
+}
+
+body{
+
+    font-family:Arial,Helvetica,sans-serif;
+
+    background:linear-gradient(
+    180deg,
+    var(--bg),
+    var(--bg2));
+
+    color:var(--text);
+
+    overflow-x:hidden;
+}
+
+/* Navigation */
+
+header{
+
+    position:fixed;
+
+    width:100%;
+
+    top:0;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px 8%;
+
+    background:rgba(6,19,33,.90);
+
+    backdrop-filter:blur(12px);
+
+    border-bottom:1px solid rgba(47,128,255,.3);
+
+    z-index:999;
+}
+
+.logo{
+
+    font-size:30px;
+
+    font-weight:bold;
+
+    color:var(--secondary);
+
+    letter-spacing:2px;
+
+    text-shadow:0 0 20px var(--primary);
+}
+
+nav a{
+
+    color:white;
+
+    text-decoration:none;
+
+    margin-left:30px;
+
+    transition:.3s;
+}
+
+nav a:hover{
+
+    color:var(--secondary);
+}
+
+/* Hero */
+
+.hero{
+
+    height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    padding:20px;
+}
+
+.hero h1{
+
+    font-size:65px;
+
+    color:var(--secondary);
+
+    text-shadow:0 0 25px var(--primary);
+
+    margin-bottom:20px;
+}
+
+.hero h2{
+
+    font-size:38px;
+
+    margin-bottom:20px;
+}
+
+.hero p{
+
+    color:var(--muted);
+
+    font-size:22px;
+
+    max-width:700px;
+}
+
+.btn{
+
+    margin-top:40px;
+
+    display:inline-block;
+
+    padding:16px 40px;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    color:white;
+
+    background:var(--primary);
+
+    transition:.35s;
+}
+
+.btn:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 0 30px var(--primary);
+}
+
+/* Sections */
+
+section{
+
+    padding:100px 10%;
+}
+
+section h2{
+
+    font-size:42px;
+
+    color:var(--secondary);
+
+    margin-bottom:30px;
+}
+
+/* Cards */
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:25px;
+}
+
+.card{
+
+    background:var(--card);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    padding:35px;
+
+    border-radius:18px;
+
+    text-align:center;
+
+    transition:.4s;
+}
+
+.card:hover{
+
+    transform:translateY(-10px);
+
+    box-shadow:0 0 35px rgba(47,128,255,.6);
+}
+/* ===============================
+   BOOT LOADER
+================================== */
+
+#loader{
+
+    position:fixed;
+
+    inset:0;
+
+    background:#020b16;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:99999;
+
+}
+
+.loader-content{
+
+    width:90%;
+
+    max-width:500px;
+
+    text-align:center;
+
+}
+
+.loader-content h1{
+
+    color:#4ea3ff;
+
+    font-size:40px;
+
+    margin-bottom:20px;
+
+    text-shadow:0 0 20px #2f80ff;
+
+}
+
+#loading-text{
+
+    color:#d7e8ff;
+
+    margin-bottom:20px;
+
+}
+
+.progress-container{
+
+    width:100%;
+
+    height:10px;
+
+    background:#10233f;
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+}
+
+#progress-bar{
+
+    width:0%;
+
+    height:100%;
+
+    background:linear-gradient(90deg,#2f80ff,#6bb8ff);
+
+}

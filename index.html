@@ -2,152 +2,1039 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Charles Kernel | Cybersecurity Engineer</title>
+<meta charset="UTF-8">
 
-    <meta name="description"
-        content="Cybersecurity Engineer Portfolio | Ethical Hacking | Python | Linux | Networking">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="css/style.css">
+<title>Charles Muriuki | Cybersecurity Engineer</title>
+
+<meta name="description"
+content="Cybersecurity Engineer Portfolio | Python | Linux | Networking | Cybersecurity">
+
+<link rel="stylesheet" href="css/style.css">
+
+<link rel="icon" href="assets/favicon.svg">
+
 </head>
 
 <body>
 
-    <!-- ================= LOADING SCREEN ================= -->
+<!-- =========================
+     LOADER
+========================= -->
 
-    <div id="loader">
+<div id="loader">
 
-        <div class="loader-content">
+<div class="loader-content">
 
-            <h1>CHARLES KERNEL</h1>
+<h1>CHARLES MURIUKI</h1>
 
-            <p id="loading-text">
-                Initializing Secure Environment...
-            </p>
+<p id="loading-text">
 
-            <div class="progress-container">
-                <div id="progress-bar"></div>
-            </div>
+Initializing Secure Environment...
 
-        </div>
+</p>
 
-    </div>
+<div class="progress-container">
 
-    <!-- ================= NAVIGATION ================= -->
+<div id="progress-bar"></div>
 
-    <header>
+</div>
 
-        <div class="logo">
-            CK
-        </div>
+</div>
 
-        <nav>
+</div>
 
-            <a href="#home">Home</a>
+<!-- =========================
+     PARTICLE BACKGROUND
+========================= -->
 
-            <a href="#about">About</a>
+<canvas id="cyber-bg"></canvas>
 
-            <a href="#skills">Skills</a>
+<!-- =========================
+     NAVIGATION
+========================= -->
 
-            <a href="#projects">Projects</a>
+<nav>
 
-            <a href="#contact">Contact</a>
+<div class="logo">
 
-        </nav>
+AEGIS
 
-    </header>
+</div>
 
-    <!-- ================= HERO ================= -->
+<ul class="nav-links">
 
-    <section id="home">
+<li><a href="#home">Home</a></li>
 
-        <div class="hero">
+<li><a href="#dashboard">Dashboard</a></li>
 
-            <h1 id="typing"></h1>
+<li><a href="#projects">Projects</a></li>
 
-            <h2>Charles Kernel</h2>
+<li><a href="#research">Research</a></li>
 
-            <p>
+<li><a href="#certifications">Certificates</a></li>
 
-                Ethical Hacker • Python Developer • Linux Enthusiast • Future SOC Analyst
+<li><a href="#github">GitHub</a></li>
 
-            </p>
+<li><a href="#contact">Contact</a></li>
 
-            <a href="#projects" class="btn">
+</ul>
 
-                Explore My Work
+</nav>
 
-            </a>
+<!-- =========================
+     HERO
+========================= -->
 
-        </div>
+<section id="home" class="reveal">
 
-    </section>
+<div class="hero">
 
-    <!-- ================= ABOUT ================= -->
+<h1 id="typing"></h1>
 
-    <section id="about">
+<h2>Charles Muriuki</h2>
 
-        <h2>About Me</h2>
+<p>
 
-        <p>
+Ethical Hacker • Python Developer • Linux Enthusiast • Future SOC Analyst
 
-            I build cybersecurity skills through Python, Linux, networking,
-            ethical hacking, and hands-on labs. My goal is to design secure
-            systems and help defend organizations against cyber threats.
+</p>
 
-        </p>
+<div class="status-badge">
 
-    </section>
+● AVAILABLE FOR CYBERSECURITY OPPORTUNITIES
 
-    <!-- ================= SKILLS ================= -->
+</div>
 
-    <section id="skills">
+<a href="#projects" class="btn">
 
-        <h2>Cyber Arsenal</h2>
+Explore My Work
 
-        <div class="cards">
+</a>
 
-            <div class="card">Python</div>
+</div>
 
-            <div class="card">Linux</div>
+</section>
 
-            <div class="card">Kali Linux</div>
+<!-- =========================
+     COMMAND CENTER
+========================= -->
 
-            <div class="card">Networking</div>
+<section id="dashboard" class="reveal">
 
-            <div class="card">Wireshark</div>
+<h2>AEGIS Command Center</h2>
 
-            <div class="card">Git & GitHub</div>
+<div class="dashboard-grid">
 
-        </div>
+<div class="dashboard-card">
 
-    </section>
+<h3>🟢 Security Status</h3>
 
-    <!-- ================= PROJECTS ================= -->
+<p>SECURE</p>
 
-    <section id="projects">
+</div>
 
-        <h2>Projects</h2>
+<div class="dashboard-card">
 
-        <p>Professional cybersecurity projects will appear here.</p>
+<h3>🐍 Python Projects</h3>
 
-    </section>
+<p id="pythonCount">0</p>
 
-    <!-- ================= CONTACT ================= -->
+</div>
 
-    <section id="contact">
+<div class="dashboard-card">
 
-        <h2>Contact</h2>
+<h3>🐧 Linux Labs</h3>
 
-        <p>Email: your-email@example.com</p>
+<p id="linuxCount">0</p>
 
-        <p>GitHub: github.com/charlesmuriuki152</p>
+</div>
 
-    </section>
+<div class="dashboard-card">
 
-    <script src="js/script.js"></script>
+<h3>🌐 Networking Labs</h3>
+
+<p id="networkCount">0</p>
+
+</div>
+
+<div class="dashboard-card">
+
+<h3>📜 Certifications</h3>
+
+<p id="certCount">0</p>
+
+</div>
+
+<div class="dashboard-card">
+
+<h3>🛡 Threat Level</h3>
+
+<p>LOW</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     THREAT INTELLIGENCE CENTER
+========================= -->
+
+<section id="threat-panel" class="reveal">
+
+<h2>Threat Intelligence Center</h2>
+
+<div class="threat-grid">
+
+<div class="threat-card">
+
+<h3>🛡 Firewall</h3>
+
+<p class="online">ONLINE</p>
+
+</div>
+
+<div class="threat-card">
+
+<h3>📡 Network Monitor</h3>
+
+<p class="online">ACTIVE</p>
+
+</div>
+
+<div class="threat-card">
+
+<h3>⚠ Alert Feed</h3>
+
+<ul id="alerts">
+
+<li>System scan completed</li>
+
+<li>No critical threats detected</li>
+
+<li>Security modules running</li>
+
+</ul>
+
+</div>
+
+<div class="threat-card">
+
+<h3>🌐 Security Level</h3>
+
+<p class="level">LOW</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     SOC DASHBOARD
+========================= -->
+
+<section id="soc" class="reveal">
+
+<h2>AEGIS SOC Dashboard</h2>
+
+<div class="soc-grid">
+
+<div class="soc-card">
+
+<h3>System Status</h3>
+
+<div class="status-online">
+
+● ONLINE
+
+</div>
+
+</div>
+
+<div class="soc-card">
+
+<h3>Network Activity</h3>
+
+<div class="activity-bar">
+
+<span></span>
+
+</div>
+
+<p>Monitoring Active</p>
+
+</div>
+
+<div class="soc-card">
+
+<h3>Security Events</h3>
+
+<ul>
+
+<li>✓ Firewall Active</li>
+
+<li>✓ Logs Analyzed</li>
+
+<li>✓ Systems Protected</li>
+
+</ul>
+
+</div>
+
+<div class="soc-card">
+
+<h3>Threat Level</h3>
+
+<p class="low-threat">
+
+LOW
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     RESEARCH CENTER
+========================= -->
+
+<section id="research" class="reveal">
+
+<h2>Cyber Research Center</h2>
+
+<div class="research-grid">
+
+<div class="research-card">
+
+<h3>🐍 Python Security Research</h3>
+
+<p>
+
+Documenting Python projects, automation, and security programming.
+
+</p>
+
+<button>
+
+Read Article
+
+</button>
+
+</div>
+
+<div class="research-card">
+
+<h3>🐧 Linux Security Notes</h3>
+
+<p>
+
+Linux commands, permissions, administration, and security practices.
+
+</p>
+
+<button>
+
+Read Article
+
+</button>
+
+</div>
+
+<div class="research-card">
+
+<h3>🌐 Network Analysis</h3>
+
+<p>
+
+TCP/IP, Wireshark, packet analysis, and troubleshooting.
+
+</p>
+
+<button>
+
+Read Article
+
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     SECURE ACCESS
+========================= -->
+
+<section id="access" class="reveal">
+
+<h2>AEGIS Secure Access</h2>
+
+<div class="access-panel">
+
+<div class="lock-icon">
+
+🔐
+
+</div>
+
+<h3>
+
+System Verification
+
+</h3>
+
+<p>
+
+Identity verification simulation.
+
+</p>
+
+<div class="verify-status">
+
+● SYSTEM READY
+
+</div>
+
+<button id="scanButton">
+
+Begin Verification
+
+</button>
+
+<p id="scanResult"></p>
+
+</div>
+
+</section>
+
+<!-- =========================
+     CYBERSECURITY JOURNEY
+========================= -->
+
+<section id="timeline" class="reveal">
+
+<h2>Cybersecurity Journey</h2>
+
+<div class="timeline">
+
+<div class="timeline-item">
+
+<h3>2026 — Foundation</h3>
+
+<p>
+
+Started building strong foundations in Python,
+Linux, networking, Git, GitHub and cybersecurity.
+
+</p>
+
+</div>
+
+<div class="timeline-item">
+
+<h3>2026 — Development</h3>
+
+<p>
+
+Built practical labs using Python, Linux,
+Termux and networking while documenting
+everything on GitHub.
+
+</p>
+
+</div>
+
+<div class="timeline-item">
+
+<h3>2027 — Professional Goal</h3>
+
+<p>
+
+Graduate with a BSc in IT and continue
+towards becoming a professional
+Cybersecurity Engineer.
+
+</p>
+
+</div>
+
+<div class="timeline-item">
+
+<h3>Future</h3>
+
+<p>
+
+Work in Security Operations (SOC),
+penetration testing and cloud security
+while contributing to open-source projects.
+
+</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     CERTIFICATIONS
+========================= -->
+
+<section id="certifications" class="reveal">
+
+<h2>Certifications & Achievements</h2>
+
+<div class="cert-grid">
+
+<div class="cert-card">
+
+<h3>🌐 Cisco Networking Basics</h3>
+
+<p>
+
+Networking fundamentals, IP addressing,
+switching and routing.
+
+</p>
+
+<span>Completed / In Progress</span>
+
+</div>
+
+<div class="cert-card">
+
+<h3>🐍 Python Development</h3>
+
+<p>
+
+Python programming, automation
+and scripting.
+
+</p>
+
+<span>In Progress</span>
+
+</div>
+
+<div class="cert-card">
+
+<h3>🛡 Cybersecurity</h3>
+
+<p>
+
+Blue Team, Linux Security,
+Network Security and SOC.
+
+</p>
+
+<span>Continuous Learning</span>
+
+</div>
+
+<div class="cert-card">
+
+<h3>🏆 CompTIA Security+</h3>
+
+<p>
+
+Professional certification goal.
+
+</p>
+
+<span>Future Goal</span>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     GITHUB
+========================= -->
+
+<section id="github" class="reveal">
+
+<h2>GitHub Operations Center</h2>
+
+<div class="github-card">
+
+<h3>⚡ Charles Muriuki</h3>
+
+<p>
+
+Building cybersecurity projects,
+Python tools, Linux labs and networking
+experiments.
+
+</p>
+
+<div class="github-stats">
+
+<div>
+
+<h4>Repositories</h4>
+
+<p>Growing</p>
+
+</div>
+
+<div>
+
+<h4>Projects</h4>
+
+<p>Active</p>
+
+</div>
+
+<div>
+
+<h4>Contributions</h4>
+
+<p>Building</p>
+
+</div>
+
+</div>
+
+<a href="https://github.com/charlesmuriuki152"
+target="_blank">
+
+Visit GitHub
+
+</a>
+
+</div>
+
+</section>
+
+<!-- =========================
+     TECHNICAL BLOG
+========================= -->
+
+<section id="blog" class="reveal">
+
+<h2>AEGIS Technical Research</h2>
+
+<div class="blog-grid">
+
+<div class="blog-card">
+
+<h3>🐍 Python Security Journey</h3>
+
+<p>
+
+Documenting Python automation,
+security scripting and cybersecurity projects.
+
+</p>
+
+<span>
+
+Python • Security
+
+</span>
+
+</div>
+
+<div class="blog-card">
+
+<h3>🐧 Linux Engineering</h3>
+
+<p>
+
+Linux administration,
+permissions and security practices.
+
+</p>
+
+<span>
+
+Linux • System Security
+
+</span>
+
+</div>
+
+<div class="blog-card">
+
+<h3>🌐 Network Research</h3>
+
+<p>
+
+Packet analysis,
+TCP/IP and Wireshark labs.
+
+</p>
+
+<span>
+
+Networking • Analysis
+
+</span>
+
+</div>
+
+</div>
+
+</section>
+<!-- =========================
+     PROJECTS
+========================= -->
+
+<section id="projects" class="reveal">
+
+<h2>Security Projects</h2>
+
+<div class="projects-grid">
+
+<div class="project-card">
+
+<h3>🐍 Python Security Toolkit</h3>
+
+<p>
+
+Python scripts for automation,
+security learning and cybersecurity projects.
+
+</p>
+
+<div class="tech">
+
+Python • Automation • Security
+
+</div>
+
+</div>
+
+<div class="project-card">
+
+<h3>🐧 Linux Security Lab</h3>
+
+<p>
+
+Linux commands,
+permissions,
+system administration
+and security.
+
+</p>
+
+<div class="tech">
+
+Linux • Bash • Security
+
+</div>
+
+</div>
+
+<div class="project-card">
+
+<h3>🌐 Network Analysis Lab</h3>
+
+<p>
+
+Packet analysis using
+Wireshark and TCP/IP.
+
+</p>
+
+<div class="tech">
+
+Networking • Wireshark • TCP/IP
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     TERMINAL
+========================= -->
+
+<section id="terminal" class="reveal">
+
+<h2>Cyber Terminal</h2>
+
+<div class="terminal-window">
+
+<div class="terminal-header">
+
+<div class="terminal-buttons">
+
+<span class="red"></span>
+
+<span class="yellow"></span>
+
+<span class="green"></span>
+
+</div>
+
+<div class="terminal-title">
+
+root@aegis:~
+
+</div>
+
+</div>
+
+<div id="terminal-output">
+
+Welcome to Project AEGIS
+
+Type "help" to begin.
+
+</div>
+
+<div class="terminal-input-row">
+
+<span class="prompt">
+
+root@aegis:~$
+
+</span>
+
+<input
+id="terminal-input"
+type="text"
+autocomplete="off">
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     ABOUT
+========================= -->
+
+<section id="about" class="reveal">
+
+<h2>About Me</h2>
+
+<p>
+
+I am Charles Muriuki, an aspiring Cybersecurity Engineer
+passionate about Python, Linux, networking,
+ethical hacking and secure system design.
+
+Every project on this portfolio represents
+my continuous learning journey.
+
+</p>
+
+</section>
+
+<!-- =========================
+     SKILLS
+========================= -->
+
+<section id="skills" class="reveal">
+
+<h2>Cyber Arsenal</h2>
+
+<div class="cards">
+
+<div class="skill-box">
+
+<h3>Python</h3>
+
+<div class="skill-bar">
+
+<span style="width:70%"></span>
+
+</div>
+
+<p>70%</p>
+
+</div>
+
+<div class="skill-box">
+
+<h3>Linux</h3>
+
+<div class="skill-bar">
+
+<span style="width:65%"></span>
+
+</div>
+
+<p>65%</p>
+
+</div>
+
+<div class="skill-box">
+
+<h3>Networking</h3>
+
+<div class="skill-bar">
+
+<span style="width:60%"></span>
+
+</div>
+
+<p>60%</p>
+
+</div>
+
+<div class="skill-box">
+
+<h3>Cybersecurity</h3>
+
+<div class="skill-bar">
+
+<span style="width:55%"></span>
+
+</div>
+
+<p>55%</p>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- =========================
+     CONTACT
+========================= -->
+
+<section id="contact" class="reveal">
+
+<h2>Contact</h2>
+
+<p>
+
+GitHub:
+<a href="https://github.com/charlesmuriuki152" target="_blank">
+
+github.com/charlesmuriuki152
+
+</a>
+
+</p>
+
+<p>
+
+Email: your-email@example.com
+
+</p>
+
+</section>
+<section id="threats" class="reveal">
+
+<h2>Threat Intelligence Dashboard</h2>
+
+<div class="dashboard-grid">
+
+<div class="dashboard-card">
+
+<h3>Threat Level</h3>
+
+<p class="level">LOW</p>
+
+</div>
+
+<div class="dashboard-card">
+
+<h3>Firewall</h3>
+
+<p class="online">ONLINE</p>
+
+</div>
+
+<div class="dashboard-card">
+
+<h3>Blocked Attacks</h3>
+
+<p id="blockedCount">0</p>
+
+</div>
+
+<div class="dashboard-card">
+
+<h3>System Status</h3>
+
+<p class="online">SECURE</p>
+
+</div>
+
+</div>
+
+</section>
+<!-- ==========================
+     GLOBAL THREAT MAP
+========================== -->
+
+<section id="map" class="reveal">
+
+<h2>Global Cyber Threat Map</h2>
+
+<div class="threat-map">
+
+<div class="country">
+🌎
+<h3>Global Network</h3>
+<p>Status: Monitoring</p>
+</div>
+
+<div class="country">
+🇺🇸
+<h3>North America</h3>
+<p>Threats Detected: 24</p>
+</div>
+
+<div class="country">
+🇪🇺
+<h3>Europe</h3>
+<p>Threats Detected: 18</p>
+</div>
+
+<div class="country">
+🇰🇪
+<h3>Africa</h3>
+<p>Threats Detected: 12</p>
+</div>
+
+</div>
+
+</section>
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer>
+
+<h2>Charles Muriuki</h2>
+
+<p>
+
+Cybersecurity Engineer • Python • Linux • Networking
+
+</p>
+
+<p>
+
+Project AEGIS © 2026
+
+</p>
+
+</footer>
+
+<script src="js/script.js"></script>
 
 </body>
 

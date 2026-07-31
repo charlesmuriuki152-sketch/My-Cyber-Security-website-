@@ -1,6 +1,6 @@
-# 🛡️ Project AEGIS
+🛡 Project AEGIS
 
-## Cybersecurity Engineer Portfolio
+Cybersecurity Engineer Portfolio
 
 Project AEGIS is a futuristic cybersecurity portfolio platform designed to showcase my journey in:
 
@@ -10,29 +10,27 @@ Project AEGIS is a futuristic cybersecurity portfolio platform designed to showc
 - Cybersecurity
 - Security Research
 
-## Features
+Features
 
-✅ Interactive Cyber Terminal  
-✅ AEGIS Command Center  
-✅ SOC Dashboard Simulation  
-✅ Threat Intelligence Panel  
-✅ Cyber Research Center  
-✅ Responsive Blue Cyber Interface  
+✅ Interactive Cyber Terminalx
+✅ AEGIS Command Center
+✅ SOC Dashboard Simulation
+✅ Threat Intelligence Panel
 
-## Technologies
+Technologies
 
 - HTML5
 - CSS3
 - JavaScript
 - Git & GitHub
 
-## Current Status
+Current Status
 
 🚧 Under Active Development
 
 The platform grows alongside my cybersecurity learning journey.
 
-## Author
+Author
 
 Charles Kernel
 

@@ -117,36 +117,31 @@ async function loadCertificates() {
     const container = document.getElementById("certificate-categories");
     if (!container) return;
 
-    container.innerHTML = "<p>Loading certificates...</p>";
-
     try {
-        const branch = await getDefaultBranch();
-        const rootItems = await getFolderContents("", branch);
-        const folders = rootItems.filter(item => item.type === "dir");
+        container.innerHTML = "<p>Step 1...</p>";
 
-        container.innerHTML = "";
+        const branch = await getDefaultBranch();
+        container.innerHTML += `<p>Branch: ${branch}</p>`;
+
+        const rootItems = await getFolderContents("", branch);
+        container.innerHTML += `<p>Root items: ${rootItems.length}</p>`;
+
+        const folders = rootItems.filter(item => item.type === "dir");
+        container.innerHTML += `<p>Folders: ${folders.length}</p>`;
 
         for (const folder of folders) {
+            container.innerHTML += `<p>Checking ${folder.name}...</p>`;
+
             const pdfs = await collectPdfsFromFolder(folder.path, branch);
 
-            const categoryCard = createCategoryCard(folder.name, pdfs);
-            container.appendChild(categoryCard);
+            container.innerHTML += `<p>${folder.name}: ${pdfs.length} PDF(s)</p>`;
         }
 
-        const repoButtonWrap = document.createElement("div");
-        repoButtonWrap.className = "github-repo-wrap";
-        repoButtonWrap.innerHTML = `
-            <a class="github-repo-btn"
-               href="https://github.com/${GITHUB_USERNAME}/${REPO_NAME}"
-               target="_blank"
-               rel="noopener noreferrer">
-               View Certificates on GitHub
-            </a>
-        `;
-        container.appendChild(repoButtonWrap);
-    } catch (error) {
-        console.error(error);
-        container.innerHTML = "<p>Failed to load certificates.</p>";
+        container.innerHTML += "<p>Finished successfully.</p>";
+
+    } catch (e) {
+        container.innerHTML += `<p style="color:red;">${e.message}</p>`;
+        console.error(e);
     }
 }
 

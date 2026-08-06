@@ -128,7 +128,6 @@ async function loadCertificates() {
 
         for (const folder of folders) {
             const pdfs = await collectPdfsFromFolder(folder.path, branch);
-container.innerHTML += `<p>${folder.name}: ${pdfs.length} certificate(s)</p>`;
 
             const categoryCard = createCategoryCard(folder.name, pdfs);
             container.appendChild(categoryCard);

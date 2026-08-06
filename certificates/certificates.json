@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Networking Basics",
+    "issuer": "Cisco Networking Academy",
+    "year": "2026",
+    "skills": [
+      "Networking",
+      "TCP/IP",
+      "IP Addressing"
+    ],
+    "certificate": "certificates/files/networking-basics.pdf",
+    "github": "https://github.com/charlesmuriuki152"
+  }
+]

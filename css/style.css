@@ -1155,3 +1155,20 @@ border-radius:20px;
 .country p {
     color: white;
 }
+.certificate-card{
+    background:#111827;
+    border:1px solid #00ff88;
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:20px;
+    transition:.3s;
+}
+
+.certificate-card:hover{
+    transform:translateY(-5px);
+}
+
+.certificate-card h3{
+    color:#00ff88;
+    margin-bottom:10px;
+}

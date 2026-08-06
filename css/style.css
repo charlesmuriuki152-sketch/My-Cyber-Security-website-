@@ -1,5 +1,6 @@
+
 /* ======================================
-/   PROJECT AEGIS v2
+   PROJECT AEGIS v2
    Author: Charles Muriuki
 ====================================== */
 
@@ -1171,4 +1172,91 @@ border-radius:20px;
 .certificate-card h3{
     color:#00ff88;
     margin-bottom:10px;
+}
+#certificate-categories {
+    display: grid;
+    gap: 16px;
+}
+
+.certificate-category {
+    border: 1px solid #22c55e;
+    border-radius: 18px;
+    background: rgba(10, 15, 30, 0.95);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.certificate-category-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: transparent;
+    border: none;
+    color: #e5e7eb;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: left;
+}
+
+.certificate-category-toggle .chevron {
+    margin-left: 8px;
+    transition: transform 0.2s ease;
+}
+
+.certificate-category.open .certificate-category-toggle .chevron {
+    transform: rotate(180deg);
+}
+
+.certificate-list {
+    display: none;
+    padding: 0 20px 20px;
+}
+
+.certificate-category.open .certificate-list {
+    display: block;
+}
+
+.certificate-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.certificate-number {
+    min-width: 28px;
+    color: #22c55e;
+    font-weight: 800;
+}
+
+.certificate-title {
+    margin: 0 0 10px;
+    color: #f8fafc;
+    font-size: 1.02rem;
+}
+
+.view-github-btn,
+.github-repo-btn {
+    display: inline-block;
+    background: #22c55e;
+    color: #08131f;
+    text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 800;
+    transition: 0.2s ease;
+}
+
+.view-github-btn:hover,
+.github-repo-btn:hover {
+    background: #16a34a;
+    transform: translateY(-1px);
+}
+
+.github-repo-wrap {
+    margin-top: 18px;
+    text-align: center;
 }

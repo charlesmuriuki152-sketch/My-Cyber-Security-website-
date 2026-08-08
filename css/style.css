@@ -1083,24 +1083,38 @@ border-radius:20px;
     margin-top:30px;
 }
 
+.dashboard-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:18px;
+    margin-top:30px;
+}
+
 .dashboard-card{
     background:#111827;
     border:1px solid #2563eb;
     border-radius:15px;
-    padding:25px;
+    padding:18px;
     text-align:center;
     transition:.3s;
     box-shadow:0 0 15px rgba(37,99,235,.2);
 }
 
 .dashboard-card:hover{
-    transform:translateY(-8px);
+    transform:translateY(-6px);
     box-shadow:0 0 25px rgba(37,99,235,.5);
 }
 
 .dashboard-card h3{
     color:#60a5fa;
-    margin-bottom:15px;
+    margin-bottom:10px;
+    font-size:1rem;
+}
+
+.dashboard-card p{
+    font-size:28px;
+    font-weight:bold;
+    margin:0;
 }
 
 .level{
@@ -1250,10 +1264,44 @@ border-radius:20px;
     transition: 0.2s ease;
 }
 
-.view-github-btn:hover,
-.github-repo-btn:hover {
-    background: #16a34a;
-    transform: translateY(-1px);
+/* Desktop hover */
+@media (hover: hover) {
+    .view-github-btn:hover,
+    .github-repo-btn:hover {
+        background: #16a34a;
+        transform: translateY(-1px);
+    }
+}
+
+/* Phone/tablet touch */
+@media (hover: none) {
+    .view-github-btn:active,
+    .github-repo-btn:active {
+        background: #16a34a;
+        animation: buttonTremble 0.18s ease;
+    }
+}
+
+@keyframes buttonTremble {
+    0% {
+        transform: translateX(0) scale(0.97);
+    }
+
+    25% {
+        transform: translateX(-2px) scale(0.97);
+    }
+
+    50% {
+        transform: translateX(2px) scale(0.97);
+    }
+
+    75% {
+        transform: translateX(-1px) scale(0.97);
+    }
+
+    100% {
+        transform: translateX(0) scale(0.97);
+    }
 }
 
 .github-repo-wrap {

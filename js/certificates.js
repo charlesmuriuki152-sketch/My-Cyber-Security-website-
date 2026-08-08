@@ -8,6 +8,7 @@ function encodePath(path) {
 function cleanTitle(filename) {
     return filename
         .replace(/\.pdf$/i, "")
+        .replace(/[-_]certificate.*$/i, "")
         .replace(/[-_]+/g, " ")
         .replace(/\s+/g, " ")
         .trim();

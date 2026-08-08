@@ -17,20 +17,22 @@ async function fetchJson(url) {
     const response = await fetch(url, {
         headers: {
             Accept: "application/vnd.github+json"
-        }
+        },
+        cache: "no-store"
     });
 
     if (!response.ok) {
         throw new Error(`GitHub API error: ${response.status}`);
     }
 
-    return response.json();
+    return await response.json();
 }
 
 async function getDefaultBranch() {
     const repo = await fetchJson(
         `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}`
     );
+
     return repo.default_branch || "main";
 }
 
@@ -39,15 +41,20 @@ async function getFolderContents(path, branch) {
         ? `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${encodePath(path)}?ref=${encodeURIComponent(branch)}`
         : `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents?ref=${encodeURIComponent(branch)}`;
 
-    return fetchJson(url);
+    return await fetchJson(url);
 }
 
 async function collectPdfsFromFolder(folderPath, branch) {
     const items = await getFolderContents(folderPath, branch);
+
     let pdfs = [];
 
     for (const item of items) {
-        if (item.type === "file" && item.name.toLowerCase().endsWith(".pdf")) {
+
+        if (
+            item.type === "file" &&
+            item.name.toLowerCase().endsWith(".pdf")
+        ) {
             pdfs.push({
                 title: cleanTitle(item.name),
                 path: item.path,
@@ -56,7 +63,11 @@ async function collectPdfsFromFolder(folderPath, branch) {
         }
 
         if (item.type === "dir") {
-            const nested = await collectPdfsFromFolder(item.path, branch);
+            const nested = await collectPdfsFromFolder(
+                item.path,
+                branch
+            );
+
             pdfs = pdfs.concat(nested);
         }
     }
@@ -65,19 +76,31 @@ async function collectPdfsFromFolder(folderPath, branch) {
 }
 
 function createCertificateItem(cert, number) {
+
     const item = document.createElement("div");
+
     item.className = "certificate-item";
 
     item.innerHTML = `
-        <div class="certificate-number">${number}.</div>
+        <div class="certificate-number">
+            ${number}.
+        </div>
+
         <div class="certificate-details">
-            <h4 class="certificate-title">${cert.title}</h4>
-            <a class="view-github-btn"
-               href="${cert.html_url}"
-               target="_blank"
-               rel="noopener noreferrer">
-               View on GitHub
+
+            <h4 class="certificate-title">
+                ${cert.title}
+            </h4>
+
+            <a
+                class="view-github-btn"
+                href="${cert.html_url}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                View on GitHub
             </a>
+
         </div>
     `;
 
@@ -85,64 +108,140 @@ function createCertificateItem(cert, number) {
 }
 
 function createCategoryCard(categoryName, certificates) {
+
     const card = document.createElement("div");
+
     card.className = "certificate-category";
 
-    const listId = `list-${categoryName.toLowerCase().replace(/\s+/g, "-")}`;
-
     card.innerHTML = `
-        <button class="certificate-category-toggle" type="button" aria-expanded="false">
-            <span>${categoryName}</span>
-            <span>${certificates.length} Certificates <span class="chevron">▼</span></span>
+        <button
+            class="certificate-category-toggle"
+            type="button"
+            aria-expanded="false"
+        >
+
+            <span>
+                ${categoryName}
+            </span>
+
+            <span>
+                ${certificates.length} Certificates
+                <span class="chevron">▼</span>
+            </span>
+
         </button>
-        <div class="certificate-list" id="${listId}"></div>
+
+        <div class="certificate-list"></div>
     `;
 
-    const toggle = card.querySelector(".certificate-category-toggle");
-    const list = card.querySelector(".certificate-list");
+    const toggle =
+        card.querySelector(".certificate-category-toggle");
+
+    const list =
+        card.querySelector(".certificate-list");
 
     certificates.forEach((cert, index) => {
-        list.appendChild(createCertificateItem(cert, index + 1));
+
+        list.appendChild(
+            createCertificateItem(cert, index + 1)
+        );
+
     });
 
     toggle.addEventListener("click", () => {
-        const open = card.classList.toggle("open");
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+
+        const open =
+            card.classList.toggle("open");
+
+        toggle.setAttribute(
+            "aria-expanded",
+            open ? "true" : "false"
+        );
+
     });
 
     return card;
 }
 
 async function loadCertificates() {
-    const container = document.getElementById("certificate-categories");
-    if (!container) return;
+
+    const container =
+        document.getElementById("certificate-categories");
+
+    if (!container) {
+
+        console.error(
+            "Certificate container #certificate-categories not found."
+        );
+
+        return;
+    }
+
+    container.innerHTML =
+        `<p class="certificate-loading">
+            Loading certificates...
+        </p>`;
 
     try {
-        container.innerHTML = "<p>Step 1...</p>";
 
-        const branch = await getDefaultBranch();
-        container.innerHTML += `<p>Branch: ${branch}</p>`;
+        const branch =
+            await getDefaultBranch();
 
-        const rootItems = await getFolderContents("", branch);
-        container.innerHTML += `<p>Root items: ${rootItems.length}</p>`;
+        const rootItems =
+            await getFolderContents("", branch);
 
-        const folders = rootItems.filter(item => item.type === "dir");
-        container.innerHTML += `<p>Folders: ${folders.length}</p>`;
+        const folders =
+            rootItems.filter(
+                item => item.type === "dir"
+            );
+
+        container.innerHTML = "";
 
         for (const folder of folders) {
-            container.innerHTML += `<p>Checking ${folder.name}...</p>`;
 
-            const pdfs = await collectPdfsFromFolder(folder.path, branch);
+            const pdfs =
+                await collectPdfsFromFolder(
+                    folder.path,
+                    branch
+                );
 
-            container.innerHTML += `<p>${folder.name}: ${pdfs.length} PDF(s)</p>`;
+            if (pdfs.length === 0) {
+                continue;
+            }
+
+            const card =
+                createCategoryCard(
+                    folder.name,
+                    pdfs
+                );
+
+            container.appendChild(card);
         }
 
-        container.innerHTML += "<p>Finished successfully.</p>";
+        if (container.children.length === 0) {
 
-    } catch (e) {
-        container.innerHTML += `<p style="color:red;">${e.message}</p>`;
-        console.error(e);
+            container.innerHTML =
+                `<p>
+                    No certificates found.
+                </p>`;
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Certificate Engine Error:",
+            error
+        );
+
+        container.innerHTML =
+            `<p style="color:red;">
+                Unable to load certificates.
+                Please try again later.
+            </p>`;
     }
 }
 
-document.addEventListener("DOMContentLoaded", loadCertificates);
+document.addEventListener(
+    "DOMContentLoaded",
+    loadCertificates
+);

@@ -406,45 +406,6 @@ function updateThreats() {
 }
 
 setInterval(updateThreats, 5000);
-const GITHUB_USERNAME = "charlesmuriuki152-sketch";
-const REPO_NAME = "Cyber-Certificates";
 
-async function loadCertificateCategories() {
-    const container = document.getElementById("certificate-categories");
 
-    try {
-        const response = await fetch(
-            `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents`
-        );
 
-        const data = await response.json();
-
-        container.innerHTML = "";
-
-        const folders = data.filter(item => item.type === "dir");
-
-        folders.forEach(folder => {
-
-            const card = document.createElement("div");
-            card.className = "certificate-card";
-
-            card.innerHTML = `
-                <h3>${folder.name}</h3>
-                <p>Loading...</p>
-            `;
-
-            container.appendChild(card);
-
-        });
-
-    } catch (err) {
-
-        container.innerHTML =
-            "<p>Failed to load certificates.</p>";
-
-        console.error(err);
-
-    }
-}
-
-document.addEventListener("DOMContentLoaded", loadCertificateCategories);

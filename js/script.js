@@ -234,38 +234,156 @@ canvas.height=window.innerHeight;
 // DASHBOARD COUNTERS
 // ==========================
 
-function animateCounter(id,target){
+function animateCounter(id, target) {
 
-const element=document.getElementById(id);
+    const element = document.getElementById(id);
 
-if(!element) return;
+    if (!element) return;
 
-let count=0;
+    let count = 0;
 
-const timer=setInterval(()=>{
+if (target === 0) {
+    element.textContent = "0";
+    return;
+}
 
-count++;
+    const timer = setInterval(() => {
 
-element.textContent=count;
+        count++;
 
-if(count>=target){
+        element.textContent = count;
 
-clearInterval(timer);
+        if (count >= target) {
+            clearInterval(timer);
+        }
+
+    }, 40);
+}
+
+// ==========================
+// GITHUB DASHBOARD DATA
+// ==========================
+
+const githubUser = "charlesmuriuki152-sketch";
+
+const githubRepos = {
+    python: "PYTHON-",
+    certificates: "Cyber-Certificates"
+};
+
+
+// ==========================
+// FETCH GITHUB REPOSITORY
+// ==========================
+
+async function fetchGitHubTree(repo) {
+
+    const repoUrl =
+        `https://api.github.com/repos/${githubUser}/${repo}`;
+
+    const repoResponse = await fetch(repoUrl);
+
+    if (!repoResponse.ok) {
+        throw new Error(`GitHub repository error: ${repoResponse.status}`);
+    }
+
+    const repoData = await repoResponse.json();
+
+    const branch = repoData.default_branch;
+
+    const treeUrl =
+        `https://api.github.com/repos/${githubUser}/${repo}/git/trees/${branch}?recursive=1`;
+
+    const treeResponse = await fetch(treeUrl);
+
+    if (!treeResponse.ok) {
+        throw new Error(`GitHub tree error: ${treeResponse.status}`);
+    }
+
+    return await treeResponse.json();
+}
+
+
+// ==========================
+// COUNT PYTHON LABS
+// ==========================
+
+async function countPythonLabs() {
+
+    const data = await fetchGitHubTree(githubRepos.python);
+
+    if (!data.tree) return 0;
+
+    return data.tree.filter(item =>
+        item.type === "blob" &&
+        item.path.toLowerCase().endsWith(".py")
+    ).length;
+}
+
+
+// ==========================
+// COUNT CERTIFICATIONS
+// ==========================
+
+async function countCertificates() {
+
+    const data = await fetchGitHubTree(githubRepos.certificates);
+
+    if (!data.tree) return 0;
+
+    return data.tree.filter(item =>
+        item.type === "blob" &&
+        item.path.toLowerCase().endsWith(".pdf")
+    ).length;
+}
+
+
+// ==========================
+// LOAD DASHBOARD COUNTERS
+// ==========================
+
+async function loadDashboardCounters() {
+
+    try {
+
+        const [pythonCount, certCount] = await Promise.all([
+            countPythonLabs(),
+            countCertificates()
+        ]);
+
+        animateCounter("pythonCount", pythonCount);
+
+        animateCounter("certCount", certCount);
+
+
+        // Repositories not created yet
+
+        animateCounter("linuxCount", 0);
+
+        animateCounter("networkCount", 0);
+
+        animateCounter("projectCount", 0);
+
+        animateCounter("securityCount", 0);
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Dashboard GitHub data error:",
+            error
+        );
+
+    }
 
 }
 
-},40);
 
-}
-
-window.addEventListener("load",()=>{
-
-animateCounter("pythonCount",5);
-animateCounter("linuxCount",12);
-animateCounter("networkCount",8);
-animateCounter("certCount",3);
-
-});
+window.addEventListener(
+    "load",
+    loadDashboardCounters
+);
 
 // ==========================
 // SECURE ACCESS

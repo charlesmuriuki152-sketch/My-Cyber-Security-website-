@@ -276,7 +276,7 @@ const githubRepos = {
 
 
 // ==========================
-// FETCH GITHUB REPOSITORY
+// FETCH GITHUB TREE
 // ==========================
 
 async function fetchGitHubTree(repo) {
@@ -284,26 +284,39 @@ async function fetchGitHubTree(repo) {
     const repoUrl =
         `https://api.github.com/repos/${githubUser}/${repo}`;
 
-    const repoResponse = await fetch(repoUrl);
+    const repoResponse = await fetch(repoUrl, {
+        cache: "no-store"
+    });
 
     if (!repoResponse.ok) {
-        throw new Error(`GitHub repository error: ${repoResponse.status}`);
+        throw new Error(
+            `GitHub repository error: ${repoResponse.status}`
+        );
     }
 
     const repoData = await repoResponse.json();
 
-    const branch = repoData.default_branch;
+    const branch =
+        repoData.default_branch;
 
     const treeUrl =
-        `https://api.github.com/repos/${githubUser}/${repo}/git/trees/${branch}?recursive=1`;
+        `https://api.github.com/repos/${githubUser}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`;
 
-    const treeResponse = await fetch(treeUrl);
+    const treeResponse =
+        await fetch(treeUrl, {
+            cache: "no-store"
+        });
 
     if (!treeResponse.ok) {
-        throw new Error(`GitHub tree error: ${treeResponse.status}`);
+        throw new Error(
+            `GitHub tree error: ${treeResponse.status}`
+        );
     }
 
-    return await treeResponse.json();
+    const treeData =
+        await treeResponse.json();
+
+    return treeData;
 }
 
 
@@ -313,13 +326,19 @@ async function fetchGitHubTree(repo) {
 
 async function countPythonLabs() {
 
-    const data = await fetchGitHubTree(githubRepos.python);
+    const data =
+        await fetchGitHubTree(
+            githubRepos.python
+        );
 
-    if (!data.tree) return 0;
+    const files =
+        data.tree || [];
 
-    return data.tree.filter(item =>
+    return files.filter(item =>
         item.type === "blob" &&
-        item.path.toLowerCase().endsWith(".py")
+        item.path
+            .toLowerCase()
+            .endsWith(".py")
     ).length;
 }
 
@@ -330,13 +349,19 @@ async function countPythonLabs() {
 
 async function countCertificates() {
 
-    const data = await fetchGitHubTree(githubRepos.certificates);
+    const data =
+        await fetchGitHubTree(
+            githubRepos.certificates
+        );
 
-    if (!data.tree) return 0;
+    const files =
+        data.tree || [];
 
-    return data.tree.filter(item =>
+    return files.filter(item =>
         item.type === "blob" &&
-        item.path.toLowerCase().endsWith(".pdf")
+        item.path
+            .toLowerCase()
+            .endsWith(".pdf")
     ).length;
 }
 
@@ -349,25 +374,59 @@ async function loadDashboardCounters() {
 
     try {
 
-        const [pythonCount, certCount] = await Promise.all([
+        const [
+            pythonCount,
+            certCount
+        ] = await Promise.all([
+
             countPythonLabs(),
+
             countCertificates()
+
         ]);
 
-        animateCounter("pythonCount", pythonCount);
+        console.log(
+            "GitHub Dashboard:",
+            {
+                pythonLabs: pythonCount,
+                certificates: certCount
+            }
+        );
 
-        animateCounter("certCount", certCount);
+        animateCounter(
+            "pythonCount",
+            pythonCount
+        );
 
+        animateCounter(
+            "certCount",
+            certCount
+        );
 
-        // Repositories not created yet
+        /*
+         * These repositories have not yet
+         * been connected to dashboard counters.
+         */
 
-        animateCounter("linuxCount", 0);
+        animateCounter(
+            "linuxCount",
+            0
+        );
 
-        animateCounter("networkCount", 0);
+        animateCounter(
+            "networkCount",
+            0
+        );
 
-        animateCounter("projectCount", 0);
+        animateCounter(
+            "projectCount",
+            0
+        );
 
-        animateCounter("securityCount", 0);
+        animateCounter(
+            "securityCount",
+            0
+        );
 
     }
 
@@ -379,7 +438,6 @@ async function loadDashboardCounters() {
         );
 
     }
-
 }
 
 
@@ -388,95 +446,6 @@ window.addEventListener(
     loadDashboardCounters
 );
 
-// ==========================
-// SECURE ACCESS
-// ==========================
-
-const scanButton=document.getElementById("scanButton");
-const scanResult=document.getElementById("scanResult");
-
-if(scanButton && scanResult){
-
-scanButton.addEventListener("click",()=>{
-
-scanResult.textContent="Scanning identity...";
-
-setTimeout(()=>{
-
-scanResult.textContent="✓ Identity Verified | Access Granted";
-
-},1500);
-
-});
-
-}
-
-// ==========================
-// SECTION REVEAL
-// ==========================
-
-const revealSections=document.querySelectorAll(".reveal");
-
-function revealOnScroll(){
-
-revealSections.forEach(section=>{
-
-const top=section.getBoundingClientRect().top;
-
-const trigger=window.innerHeight-100;
-
-if(top<trigger){
-
-section.classList.add("active");
-
-}
-
-});
-
-}
-
-window.addEventListener("scroll",revealOnScroll);
-window.addEventListener("load",revealOnScroll);
-// ==========================
-// SMOOTH NAVIGATION
-// ==========================
-
-document.querySelectorAll('a[href^="#"]').forEach(link=>{
-
-link.addEventListener("click",function(e){
-
-const target=document.querySelector(this.getAttribute("href"));
-
-if(target){
-
-e.preventDefault();
-
-target.scrollIntoView({
-
-behavior:"smooth",
-block:"start"
-
-});
-
-}
-
-});
-
-});
-
-// ==========================
-// INITIALIZATION
-// ==========================
-
-window.addEventListener("load",()=>{
-
-revealOnScroll();
-
-});
-
-// ==========================
-// FINISH
-// ==========================
 // ==========================
 // LIVE ATTACK COUNTER
 // ==========================

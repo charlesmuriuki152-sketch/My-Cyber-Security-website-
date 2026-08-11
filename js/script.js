@@ -544,17 +544,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (contactOpportunity) {
             contactOpportunity.addEventListener("click", () => {
+
+                // Close the opportunities modal
                 opportunityModal.classList.remove("active");
                 document.body.style.overflow = "";
 
-                const contactSection = document.getElementById("contact");
+                // Scroll to Contact after the modal has been removed
+                requestAnimationFrame(() => {
 
-                if (contactSection) {
-                    contactSection.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-                }
+                    const contactSection = document.getElementById("contact");
+
+                    if (contactSection) {
+                        contactSection.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+                    }
+
+                });
+
             });
         }
 

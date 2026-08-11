@@ -530,28 +530,32 @@ setInterval(updateThreats, 5000);
 // CYBERSECURITY OPPORTUNITIES
 // ==========================
 
-const opportunityBtn = document.getElementById("opportunityBtn");
-const opportunityModal = document.getElementById("opportunityModal");
-const closeOpportunity = document.getElementById("closeOpportunity");
+document.addEventListener("DOMContentLoaded", () => {
 
-if (opportunityBtn && opportunityModal && closeOpportunity) {
+    const opportunityBtn = document.getElementById("opportunityBtn");
+    const opportunityModal = document.getElementById("opportunityModal");
+    const closeOpportunity = document.getElementById("closeOpportunity");
 
-    opportunityBtn.addEventListener("click", () => {
-        opportunityModal.classList.add("active");
-        document.body.style.overflow = "hidden";
-    });
+    if (opportunityBtn && opportunityModal && closeOpportunity) {
 
-    closeOpportunity.addEventListener("click", () => {
-        opportunityModal.classList.remove("active");
-        document.body.style.overflow = "";
-    });
+        opportunityBtn.addEventListener("click", () => {
+            opportunityModal.classList.add("active");
+            document.body.style.overflow = "hidden";
+        });
 
-    opportunityModal.addEventListener("click", (event) => {
-        if (event.target === opportunityModal) {
+        closeOpportunity.addEventListener("click", () => {
             opportunityModal.classList.remove("active");
             document.body.style.overflow = "";
-        }
-    });
+        });
 
-}
+        opportunityModal.addEventListener("click", (event) => {
+            if (event.target === opportunityModal) {
+                opportunityModal.classList.remove("active");
+                document.body.style.overflow = "";
+            }
+        });
+
+    }
+
+});
 

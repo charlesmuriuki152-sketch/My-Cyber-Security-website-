@@ -1308,3 +1308,124 @@ border-radius:20px;
     margin-top: 18px;
     text-align: center;
 }
+
+
+/* ==========================
+   CYBERSECURITY OPPORTUNITIES
+========================== */
+
+.status-badge {
+    cursor: pointer;
+    border: none;
+    font: inherit;
+}
+
+.opportunity-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(8px);
+}
+
+.opportunity-modal.active {
+    display: flex;
+}
+
+.opportunity-modal-content {
+    position: relative;
+    width: min(650px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 35px;
+    border: 1px solid var(--secondary);
+    border-radius: 18px;
+    background: var(--bg, #080b10);
+    box-shadow: 0 0 35px rgba(0, 255, 170, 0.18);
+}
+
+.opportunity-label {
+    margin: 0 0 8px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--secondary);
+    font-weight: bold;
+}
+
+.opportunity-modal-content h2 {
+    margin: 0 0 12px;
+}
+
+.opportunity-intro {
+    margin-bottom: 25px;
+    opacity: 0.8;
+    line-height: 1.6;
+}
+
+.opportunity-list {
+    display: grid;
+    gap: 12px;
+}
+
+.opportunity-item {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.opportunity-item > span {
+    font-size: 22px;
+}
+
+.opportunity-item strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.opportunity-item p {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.7;
+    line-height: 1.5;
+}
+
+.opportunity-close {
+    position: absolute;
+    top: 15px;
+    right: 18px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.opportunity-close:hover {
+    color: var(--secondary);
+}
+
+.opportunity-contact {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 22px;
+    border-radius: 8px;
+    background: var(--secondary);
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    .opportunity-modal-content {
+        padding: 25px 20px;
+    }
+}
+

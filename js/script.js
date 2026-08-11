@@ -516,7 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Close the opportunities modal
                 opportunityModal.classList.remove("active");
-                document.body.style.overflow = "";
+    
 
                 // Scroll to Contact after the modal has been removed
                 requestAnimationFrame(() => {
@@ -537,18 +537,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         opportunityBtn.addEventListener("click", () => {
             opportunityModal.classList.add("active");
-            document.body.style.overflow = "hidden";
+
         });
 
         closeOpportunity.addEventListener("click", () => {
             opportunityModal.classList.remove("active");
-            document.body.style.overflow = "";
+
         });
 
         opportunityModal.addEventListener("click", (event) => {
             if (event.target === opportunityModal) {
                 opportunityModal.classList.remove("active");
-                document.body.style.overflow = "";
+    
             }
         });
 

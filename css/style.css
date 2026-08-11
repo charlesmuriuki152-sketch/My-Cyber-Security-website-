@@ -1316,56 +1316,97 @@ border-radius:20px;
 
 /* ==========================
    AEGIS OPPORTUNITY BUTTON
-   Professional animated perimeter
+   Cybersecurity scanner perimeter
 ========================== */
+
+@property --aegis-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
 
 .status-badge {
     position: relative;
     isolation: isolate;
     z-index: 1;
     cursor: pointer;
-    border: 2px solid transparent;
+    border: 1px solid transparent;
     border-radius: 999px;
     font: inherit;
     color: inherit;
+
     background:
         linear-gradient(var(--bg, #080b10), var(--bg, #080b10)) padding-box,
         conic-gradient(
-            from 0deg,
-            #00f5ff,
-            #0066ff,
-            #8a2be2,
-            #ff00aa,
-            #ff1744,
-            #ffd600,
-            #00ff88,
-            #00f5ff
+            from var(--aegis-angle),
+            rgba(0, 245, 255, 0.08) 0deg,
+            rgba(0, 245, 255, 0.08) 325deg,
+            rgba(0, 245, 255, 0.95) 335deg,
+            rgba(90, 120, 255, 1) 342deg,
+            rgba(180, 70, 255, 0.95) 348deg,
+            rgba(255, 0, 170, 0.85) 353deg,
+            rgba(0, 245, 255, 0.08) 360deg
         ) border-box;
-    animation: aegisRainbow 3s linear infinite;
+
+    animation: aegisScannerOrbit 3.8s linear infinite;
+
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     transition: box-shadow 0.25s ease, transform 0.2s ease;
 }
 
+.status-badge {
+    color: #f1f5f9;
+}
+
+.status-badge::first-letter {
+    color: #22c55e;
+}
+
+.status-badge::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    z-index: -1;
+    pointer-events: none;
+
+    background: conic-gradient(
+        from var(--aegis-angle),
+        transparent 0deg,
+        transparent 332deg,
+        rgba(0, 245, 255, 0.18) 342deg,
+        rgba(160, 80, 255, 0.12) 350deg,
+        transparent 358deg
+    );
+
+    filter: blur(3px);
+    opacity: 0.65;
+}
+
 .status-badge:hover {
     box-shadow:
-        0 0 10px rgba(0, 245, 255, 0.18),
-        0 0 20px rgba(255, 0, 170, 0.10);
+        0 0 8px rgba(0, 245, 255, 0.12),
+        0 0 16px rgba(120, 80, 255, 0.08);
 }
 
 .status-badge:active {
     transform: scale(0.98);
 }
 
-@keyframes aegisRainbow {
+@keyframes aegisScannerOrbit {
     to {
-        filter: hue-rotate(360deg);
+        --aegis-angle: 360deg;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .status-badge {
         animation: none;
+    }
+
+    .status-badge::after {
+        display: none;
     }
 }
 
@@ -1375,6 +1416,7 @@ border-radius:20px;
         white-space: normal;
         text-align: center;
     }
+}
 }
 }
 }

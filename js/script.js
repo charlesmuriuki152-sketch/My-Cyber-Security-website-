@@ -538,8 +538,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const opportunityBtn = document.getElementById("opportunityBtn");
     const opportunityModal = document.getElementById("opportunityModal");
     const closeOpportunity = document.getElementById("closeOpportunity");
+    const contactOpportunity = document.getElementById("contactOpportunity");
 
     if (opportunityBtn && opportunityModal && closeOpportunity) {
+
+        if (contactOpportunity) {
+            contactOpportunity.addEventListener("click", () => {
+                opportunityModal.classList.remove("active");
+                document.body.style.overflow = "";
+
+                const contactSection = document.getElementById("contact");
+
+                if (contactSection) {
+                    contactSection.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                }
+            });
+        }
 
         opportunityBtn.addEventListener("click", () => {
             opportunityModal.classList.add("active");

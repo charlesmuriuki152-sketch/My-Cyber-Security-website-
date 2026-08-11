@@ -1,3 +1,6 @@
+// AEGIS_SCRIPT_TEST
+console.log("AEGIS script loaded");
+
 // ======================================
 // PROJECT AEGIS v2
 // Author: Charles Muriuki

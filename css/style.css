@@ -1598,7 +1598,7 @@ body {
     touch-action: none !important;
     overscroll-behavior: none !important;
 
-    display: flex !important;
+    display: flex;
     align-items: center !important;
     justify-content: center !important;
 }

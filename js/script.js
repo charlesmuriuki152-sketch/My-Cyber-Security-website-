@@ -139,14 +139,14 @@ terminalOutput.textContent="";
 else if(commands[command]){
 
 terminalOutput.textContent +=
-"\n\n> " + command + "\n" + commands[command];
+"> " + command + "" + commands[command];
 
 }
 
 else{
 
 terminalOutput.textContent +=
-"\n\n> " + command + "\nCommand not found.";
+"> " + command + "Command not found.";
 
 }
 

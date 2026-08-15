@@ -175,19 +175,20 @@ box-shadow:0 0 25px var(--primary);
 position:fixed;
 inset:0;
 width:100%;
-height:100%;
+height:100svh;
+min-height:100svh;
 background:#020b18;
 z-index:99999;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
 #loader .loader-content{
-position:absolute;
-top:50%;
-left:50%;
 width:90%;
 max-width:500px;
-transform:translate(-50%,-50%);
 text-align:center;
+transform:none;
 }
 
 #loader #loading-text{

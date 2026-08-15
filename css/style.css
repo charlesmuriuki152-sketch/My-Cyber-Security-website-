@@ -172,18 +172,36 @@ box-shadow:0 0 25px var(--primary);
 ========================== */
 
 #loader{
-
 position:fixed;
-top:0;
-left:0;
+inset:0;
 width:100%;
 height:100%;
 background:#020b18;
-display:flex;
-justify-content:center;
-align-items:center;
 z-index:99999;
+}
 
+#loader .loader-content{
+position:absolute;
+top:50%;
+left:50%;
+width:90%;
+max-width:500px;
+transform:translate(-50%,-50%);
+text-align:center;
+}
+
+#loader #loading-text{
+height:24px;
+line-height:24px;
+display:block;
+width:100%;
+margin:0 0 20px 0;
+text-align:center;
+white-space:nowrap;
+overflow:hidden;
+font-family:monospace;
+font-size:16px;
+color:#dbeafe;
 }
 
 .loader-content{

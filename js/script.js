@@ -558,6 +558,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // ==========================
+// ==========================
 // AEGIS SCROLL REVEAL ENGINE
 // ==========================
 
@@ -565,26 +566,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const revealElements = document.querySelectorAll(".reveal");
 
-    const revealObserver = new IntersectionObserver(
-        (entries, observer) => {
+    if (!revealElements.length) return;
 
-            entries.forEach((entry) => {
-
-                if (entry.isIntersecting) {
-                    entry.target.classList.add("active");
-                    observer.unobserve(entry.target);
-                }
-
-            });
-
-        },
-        {
-            threshold: 0.08
+    // Always reveal the first visible section immediately
+    revealElements.forEach((element, index) => {
+        if (index === 0) {
+            element.classList.add("active");
         }
-    );
-
-    revealElements.forEach((element) => {
-        revealObserver.observe(element);
     });
+
+    // Use scroll-based reveal when supported
+    if ("IntersectionObserver" in window) {
+
+        const revealObserver = new IntersectionObserver(
+            (entries, observer) => {
+
+                entries.forEach((entry) => {
+
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                        observer.unobserve(entry.target);
+                    }
+
+                });
+
+            },
+            {
+                threshold: 0.05
+            }
+        );
+
+        revealElements.forEach((element) => {
+            if (!element.classList.contains("active")) {
+                revealObserver.observe(element);
+            }
+        });
+
+    } else {
+
+        // Fallback for browsers without IntersectionObserver
+        revealElements.forEach((element) => {
+            element.classList.add("active");
+        });
+
+    }
 
 });

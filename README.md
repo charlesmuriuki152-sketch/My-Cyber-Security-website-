@@ -32,6 +32,6 @@ The platform grows alongside my cybersecurity learning journey.
 
 Author
 
-Charles Kernel
+Charles Muriuki
 
 Future Cybersecurity Engineer

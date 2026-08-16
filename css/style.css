@@ -1363,13 +1363,14 @@ border-radius:20px;
 
     background: conic-gradient(
         from var(--aegis-angle),
-        #00f5ff,
-        #0066ff,
-        #8a2be2,
-        #ff00aa,
-        #ff1744,
-        #00ff88,
-        #00f5ff
+        #00f5ff 0deg,
+        #0066ff 8deg,
+        #8a2be2 16deg,
+        #ff00aa 24deg,
+        #ff1744 32deg,
+        #00ff88 40deg,
+        transparent 52deg,
+        transparent 360deg
     );
 
     /* Cut the center out so ONLY the perimeter remains */

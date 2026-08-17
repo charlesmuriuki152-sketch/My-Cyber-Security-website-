@@ -61,6 +61,12 @@ if (loader && progressBar && loadingText) {
             setTimeout(() => {
 
                 loader.style.display = "none";
+
+                const aegisButton = document.getElementById("opportunityBtn");
+                if (aegisButton) {
+                    aegisButton.classList.add("aegis-active");
+                }
+
                 typeWriter();
 
             }, 1000);

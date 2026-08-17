@@ -50,6 +50,11 @@ if (loader && progressBar && loadingText) {
 
         progressBar.style.width = progress + "%";
 
+        if (progress === 20) loadingText.textContent = bootMessages[1];
+        if (progress === 45) loadingText.textContent = bootMessages[2];
+        if (progress === 70) loadingText.textContent = bootMessages[3];
+        if (progress === 95) loadingText.textContent = bootMessages[4];
+
 
         if (progress >= 100) {
 

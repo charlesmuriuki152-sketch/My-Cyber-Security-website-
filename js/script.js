@@ -150,14 +150,14 @@ terminalOutput.textContent="";
 else if(commands[command]){
 
 terminalOutput.textContent +=
-"> " + command + "" + commands[command];
+"\n> " + command + "\n" + commands[command] + "\n";
 
 }
 
 else{
 
 terminalOutput.textContent +=
-"> " + command + "Command not found.";
+"\n> " + command + "\nCommand not found.\n";
 
 }
 
@@ -237,7 +237,7 @@ canvas.height=window.innerHeight;
 // DASHBOARD COUNTERS
 // ==========================
 
-function animateCounter(id, target) {
+function animateCounter(id, target, zeroLabel) {
 
     const element = document.getElementById(id);
 
@@ -246,7 +246,7 @@ function animateCounter(id, target) {
     let count = 0;
 
 if (target === 0) {
-    element.textContent = "0";
+    element.textContent = zeroLabel || "0";
     return;
 }
 
@@ -272,6 +272,24 @@ const githubUser = "charlesmuriuki152-sketch";
 const githubRepos = {
     python: "PYTHON-",
     certificates: "Cyber-Certificates"
+};
+
+// Manually maintained counts for labs that don't yet have a
+// dedicated repo to auto-count from. Update these as new
+// repos/labs are added.
+const manualCounts = {
+    linux: 0,        // No dedicated Linux labs repo yet
+    networking: 1,   // Packet-Tracer (Cisco wireless config lab)
+    security: 0,     // No dedicated security labs repo yet
+    projects: 3      // Packet-Tracer, Cybersecurity-Journey, My-Cyber-Security-website-
+};
+
+// Fallback values used if the GitHub API is unreachable or
+// rate-limited, so the dashboard never silently shows 0 for
+// counts that do have real content.
+const fallbackCounts = {
+    python: 5,
+    certificates: 1
 };
 
 
@@ -372,11 +390,14 @@ async function countCertificates() {
 
 async function loadDashboardCounters() {
 
+    let pythonCount = fallbackCounts.python;
+    let certCount = fallbackCounts.certificates;
+
     try {
 
         const [
-            pythonCount,
-            certCount
+            livePythonCount,
+            liveCertCount
         ] = await Promise.all([
 
             countPythonLabs(),
@@ -386,58 +407,57 @@ async function loadDashboardCounters() {
         ]);
 
         console.log(
-            "GitHub Dashboard:",
+            "GitHub Dashboard (live):",
             {
-                pythonLabs: pythonCount,
-                certificates: certCount
+                pythonLabs: livePythonCount,
+                certificates: liveCertCount
             }
         );
 
-        animateCounter(
-            "pythonCount",
-            pythonCount
-        );
+        pythonCount = livePythonCount;
+        certCount = liveCertCount;
 
-        animateCounter(
-            "certCount",
-            certCount
-        );
+    } catch (error) {
 
-        /*
-         * These repositories have not yet
-         * been connected to dashboard counters.
-         */
-
-        animateCounter(
-            "linuxCount",
-            0
-        );
-
-        animateCounter(
-            "networkCount",
-            0
-        );
-
-        animateCounter(
-            "projectCount",
-            0
-        );
-
-        animateCounter(
-            "securityCount",
-            0
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Dashboard GitHub data error:",
+        console.warn(
+            "GitHub API unavailable, using fallback counts:",
             error
         );
 
     }
+
+    animateCounter(
+        "pythonCount",
+        pythonCount
+    );
+
+    animateCounter(
+        "certCount",
+        certCount
+    );
+
+    animateCounter(
+        "linuxCount",
+        manualCounts.linux,
+        "Soon"
+    );
+
+    animateCounter(
+        "networkCount",
+        manualCounts.networking
+    );
+
+    animateCounter(
+        "projectCount",
+        manualCounts.projects
+    );
+
+    animateCounter(
+        "securityCount",
+        manualCounts.security,
+        "Soon"
+    );
+
 }
 
 

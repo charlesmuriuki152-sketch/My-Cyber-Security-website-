@@ -4,15 +4,19 @@
    Author: Charles Muriuki
 ====================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
 :root{
 
---bg:#061321;
+--bg:#050f1c;
 --bg2:#0d1f36;
 --primary:#2f80ff;
 --secondary:#7cc5ff;
+--accent:#00e5b0;
 --text:#ffffff;
 --muted:#c7d5e6;
 --card:rgba(255,255,255,.05);
+--card-border:rgba(47,128,255,.25);
 
 }
 
@@ -32,11 +36,17 @@ scroll-behavior:smooth;
 
 body{
 
-font-family:Arial,Helvetica,sans-serif;
-background:linear-gradient(180deg,var(--bg),var(--bg2));
+font-family:'Inter',Arial,Helvetica,sans-serif;
+background:linear-gradient(160deg,var(--bg),var(--bg2));
 color:var(--text);
 overflow-x:hidden;
 line-height:1.6;
+
+}
+
+h1,h2,h3,.logo{
+
+font-family:'Rajdhani','Inter',Arial,sans-serif;
 
 }
 
@@ -126,8 +136,13 @@ padding:120px 20px 60px;
 .hero h1{
 
 font-size:52px;
-color:var(--secondary);
-text-shadow:0 0 20px var(--primary);
+font-weight:700;
+letter-spacing:1px;
+background:linear-gradient(90deg,var(--secondary),var(--accent));
+-webkit-background-clip:text;
+background-clip:text;
+color:transparent;
+text-shadow:0 0 30px rgba(47,128,255,.35);
 margin-bottom:20px;
 
 }
@@ -152,8 +167,10 @@ color:var(--muted);
 display:inline-block;
 margin-top:35px;
 padding:14px 35px;
-background:var(--primary);
+background:linear-gradient(135deg,var(--primary),#1b5fd6);
 color:white;
+font-weight:600;
+letter-spacing:.5px;
 text-decoration:none;
 border-radius:30px;
 transition:.3s;
@@ -163,7 +180,7 @@ transition:.3s;
 .btn:hover{
 
 transform:translateY(-4px);
-box-shadow:0 0 25px var(--primary);
+box-shadow:0 0 30px rgba(47,128,255,.55),0 0 12px var(--accent);
 
 }
 
@@ -255,9 +272,27 @@ padding:90px 8%;
 section h2{
 
 font-size:34px;
+font-weight:700;
+letter-spacing:.5px;
 text-align:center;
 margin-bottom:35px;
 color:var(--secondary);
+position:relative;
+padding-bottom:14px;
+
+}
+
+section h2::after{
+
+content:"";
+position:absolute;
+bottom:0;
+left:50%;
+transform:translateX(-50%);
+width:60px;
+height:3px;
+border-radius:3px;
+background:linear-gradient(90deg,var(--primary),var(--accent));
 
 }
 /* ==========================
@@ -745,6 +780,9 @@ border:1px solid rgba(47,128,255,.25);
 border-radius:18px;
 padding:25px;
 transition:.3s;
+display:block;
+text-decoration:none;
+cursor:pointer;
 
 }
 

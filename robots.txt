@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://charlesmuriuki152-sketch.github.io/My-Cyber-Security-website-/sitemap.xml

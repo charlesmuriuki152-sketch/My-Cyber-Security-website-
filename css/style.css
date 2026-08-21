@@ -311,6 +311,28 @@ font-style:italic;
 
 }
 
+.skip-link{
+
+position:absolute;
+top:-60px;
+left:10px;
+background:var(--primary);
+color:white;
+padding:12px 20px;
+border-radius:8px;
+z-index:9999;
+text-decoration:none;
+font-weight:600;
+transition:top .2s;
+
+}
+
+.skip-link:focus{
+
+top:10px;
+
+}
+
 .ethics-note{
 
 max-width:700px;

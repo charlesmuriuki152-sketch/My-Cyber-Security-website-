@@ -4,7 +4,7 @@
    Author: Charles Muriuki
 ====================================== */
 
-/* Fonts loaded via <link> in index.html head for faster, more reliable loading */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
 :root{
 
@@ -31,8 +31,6 @@ box-sizing:border-box;
 html{
 
 scroll-behavior:smooth;
-max-width:100%;
-overflow-x:hidden;
 
 }
 

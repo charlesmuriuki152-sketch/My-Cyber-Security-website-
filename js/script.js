@@ -1,6 +1,18 @@
 // AEGIS_SCRIPT_TEST
 console.log("AEGIS script loaded");
 
+// ==========================
+// CLICKJACKING PROTECTION
+// ==========================
+// GitHub Pages cannot serve custom HTTP headers, so the
+// X-Frame-Options / CSP frame-ancestors protections aren't
+// available server-side here. This is a client-side fallback:
+// if this page is ever loaded inside an iframe on another
+// origin, break out of it.
+if (window.top !== window.self) {
+    window.top.location = window.self.location;
+}
+
 // ======================================
 // PROJECT AEGIS v2
 // Author: Charles Muriuki
@@ -505,9 +517,9 @@ function updateThreats() {
 
         if (status) {
             if (box.innerText.includes("Monitoring")) {
-                status.innerHTML = "Status: Monitoring";
+                status.textContent = "Status: Monitoring";
             } else {
-                status.innerHTML = "Threats Detected: " + number;
+                status.textContent = "Threats Detected: " + number;
             }
         }
 

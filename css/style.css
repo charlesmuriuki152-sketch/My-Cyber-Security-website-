@@ -4,7 +4,7 @@
    Author: Charles Muriuki
 ====================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+/* Fonts loaded via <link> in index.html head for faster, more reliable loading */
 
 :root{
 
@@ -31,6 +31,8 @@ box-sizing:border-box;
 html{
 
 scroll-behavior:smooth;
+max-width:100%;
+overflow-x:hidden;
 
 }
 
@@ -295,6 +297,34 @@ border-radius:3px;
 background:linear-gradient(90deg,var(--primary),var(--accent));
 
 }
+
+.demo-label{
+
+text-align:center;
+font-size:13px;
+color:var(--muted);
+opacity:.7;
+letter-spacing:.5px;
+margin-top:-20px;
+margin-bottom:30px;
+font-style:italic;
+
+}
+
+.ethics-note{
+
+max-width:700px;
+margin:35px auto 0;
+padding:14px 20px;
+border-left:3px solid var(--accent);
+background:rgba(0,229,176,.06);
+color:var(--muted);
+font-size:14px;
+line-height:1.6;
+border-radius:4px;
+
+}
+
 /* ==========================
    DASHBOARD
 ========================== */

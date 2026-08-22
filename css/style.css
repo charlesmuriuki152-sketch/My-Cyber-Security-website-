@@ -982,20 +982,38 @@ margin-bottom:15px;
 
 }
 
-.skill-bar{
+.skill-level{
 
-height:12px;
-background:#10233f;
+display:inline-block;
+padding:6px 16px;
 border-radius:20px;
-overflow:hidden;
+font-size:14px;
+font-weight:600;
+letter-spacing:.3px;
 
 }
 
-.skill-bar span{
+.skill-level.level-high{
 
-display:block;
-height:100%;
-background:linear-gradient(90deg,var(--primary),var(--secondary));
+background:rgba(0,229,176,.15);
+color:var(--accent);
+border:1px solid rgba(0,229,176,.4);
+
+}
+
+.skill-level.level-mid{
+
+background:rgba(47,128,255,.15);
+color:var(--secondary);
+border:1px solid rgba(47,128,255,.4);
+
+}
+
+.skill-level.level-learning{
+
+background:rgba(199,213,230,.1);
+color:var(--muted);
+border:1px solid rgba(199,213,230,.3);
 
 }
 

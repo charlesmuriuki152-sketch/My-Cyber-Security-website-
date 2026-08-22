@@ -472,10 +472,45 @@ async function loadDashboardCounters() {
 
 }
 
+async function loadGithubProfileStats() {
+
+    const repoEl = document.getElementById("githubRepoCount");
+    const followerEl = document.getElementById("githubFollowerCount");
+
+    if (!repoEl || !followerEl) return;
+
+    try {
+
+        const response = await fetch(
+            `https://api.github.com/users/${githubUser}`
+        );
+
+        if (!response.ok) throw new Error("GitHub API error");
+
+        const data = await response.json();
+
+        repoEl.textContent = data.public_repos ?? "—";
+        followerEl.textContent = data.followers ?? "—";
+
+    } catch (error) {
+
+        console.warn("GitHub profile stats unavailable:", error);
+        repoEl.textContent = "—";
+        followerEl.textContent = "—";
+
+    }
+
+}
+
 
 window.addEventListener(
     "load",
     loadDashboardCounters
+);
+
+window.addEventListener(
+    "load",
+    loadGithubProfileStats
 );
 
 // ==========================

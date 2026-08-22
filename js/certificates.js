@@ -205,7 +205,32 @@ async function loadCertificates() {
                 item => item.type === "dir"
             );
 
+        const rootPdfs =
+            rootItems.filter(
+                item =>
+                    item.type === "file" &&
+                    item.name.toLowerCase().endsWith(".pdf")
+            ).map(item => ({
+                title: cleanTitle(item.name),
+                path: item.path,
+                html_url: item.html_url
+            }));
+
         container.innerHTML = "";
+
+        // Certificates placed directly at the repo root
+        // (not inside a category folder) still get shown,
+        // grouped under "General".
+        if (rootPdfs.length > 0) {
+
+            const generalCard =
+                createCategoryCard(
+                    "General",
+                    rootPdfs
+                );
+
+            container.appendChild(generalCard);
+        }
 
         for (const folder of folders) {
 

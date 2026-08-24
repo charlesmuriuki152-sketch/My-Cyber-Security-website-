@@ -599,16 +599,15 @@ margin-bottom:20px;
 
 .pw-input-row{
 
-display:flex;
-gap:10px;
+position:relative;
 margin-bottom:20px;
 
 }
 
 .pw-input-row input{
 
-flex:1;
-padding:14px 18px;
+width:100%;
+padding:14px 50px 14px 18px;
 border-radius:12px;
 border:1px solid rgba(47,128,255,.3);
 background:#0a1830;
@@ -627,13 +626,29 @@ box-shadow:0 0 12px rgba(47,128,255,.4);
 
 .pw-input-row button{
 
-padding:0 18px;
-border:1px solid rgba(47,128,255,.3);
-border-radius:12px;
+position:absolute;
+right:8px;
+top:50%;
+transform:translateY(-50%);
+width:36px;
+height:36px;
+padding:0;
+display:flex;
+align-items:center;
+justify-content:center;
+border:none;
+border-radius:8px;
 background:transparent;
-color:var(--text);
+color:var(--muted);
 cursor:pointer;
-font-size:18px;
+transition:.2s;
+
+}
+
+.pw-input-row button:hover{
+
+color:var(--secondary);
+background:rgba(47,128,255,.1);
 
 }
 

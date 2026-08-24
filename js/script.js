@@ -647,6 +647,9 @@ if (pwInput) {
 
 if (pwToggle && pwInput) {
 
+    const eyeOpen = document.getElementById("pwEyeOpen");
+    const eyeClosed = document.getElementById("pwEyeClosed");
+
     pwToggle.addEventListener("click", () => {
         const isHidden = pwInput.type === "password";
         pwInput.type = isHidden ? "text" : "password";
@@ -654,6 +657,11 @@ if (pwToggle && pwInput) {
             "aria-label",
             isHidden ? "Hide password" : "Show password"
         );
+
+        if (eyeOpen && eyeClosed) {
+            eyeOpen.style.display = isHidden ? "none" : "block";
+            eyeClosed.style.display = isHidden ? "block" : "none";
+        }
     });
 
 }

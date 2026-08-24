@@ -34,7 +34,7 @@ content="Cybersecurity Engineer Portfolio | Python | Linux | Networking | Cybers
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap">
 
-<link rel="stylesheet" href="css/style.css?v=20260821d">
+<link rel="stylesheet" href="css/style.css?v=20260822c">
 
 <link rel="icon" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -413,7 +413,9 @@ TCP/IP, Wireshark, packet analysis, and troubleshooting.
 
 <section id="access" class="reveal">
 
-<h2>AEGIS Secure Access</h2>
+<h2>Password Strength Checker</h2>
+
+<p class="demo-label">Checked entirely in your browser — nothing is sent anywhere or stored</p>
 
 <div class="access-panel">
 
@@ -423,31 +425,39 @@ TCP/IP, Wireshark, packet analysis, and troubleshooting.
 
 </div>
 
-<h3>
+<div class="pw-input-row">
 
-System Verification
+<input
+type="password"
+id="pwInput"
+placeholder="Type a password to test..."
+autocomplete="off"
+aria-label="Password to test">
 
-</h3>
-
-<p>
-
-Identity verification simulation.
-
-</p>
-
-<div class="verify-status">
-
-● SYSTEM READY
+<button type="button" id="pwToggle" aria-label="Show password">👁</button>
 
 </div>
 
-<button id="scanButton">
+<div class="pw-meter">
 
-Begin Verification
+<div id="pwMeterFill"></div>
 
-</button>
+</div>
 
-<p id="scanResult"></p>
+<p id="pwLabel">Enter a password above</p>
+
+<ul id="pwChecklist" class="pw-checklist">
+
+<li id="pwLen">At least 12 characters</li>
+<li id="pwUpper">Contains uppercase letter</li>
+<li id="pwLower">Contains lowercase letter</li>
+<li id="pwNum">Contains a number</li>
+<li id="pwSymbol">Contains a symbol</li>
+<li id="pwCommon">Not a common/weak pattern</li>
+
+</ul>
+
+<p id="pwEntropy" class="pw-entropy"></p>
 
 </div>
 
@@ -935,7 +945,7 @@ Project AEGIS © 2026
 
 </footer>
 
- <script src="js/script.js?v=20260821d"></script> 
+ <script src="js/script.js?v=20260822c"></script> 
  <script src="js/certificates.js?v=20260822"></script> 
 
 

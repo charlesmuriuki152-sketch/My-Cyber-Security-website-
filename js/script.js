@@ -514,6 +514,151 @@ window.addEventListener(
 );
 
 // ==========================
+// PASSWORD STRENGTH CHECKER
+// ==========================
+
+const pwInput = document.getElementById("pwInput");
+const pwToggle = document.getElementById("pwToggle");
+const pwMeterFill = document.getElementById("pwMeterFill");
+const pwLabel = document.getElementById("pwLabel");
+const pwEntropy = document.getElementById("pwEntropy");
+
+const commonPatterns = [
+    "password", "123456", "12345678", "qwerty", "letmein",
+    "admin", "welcome", "abc123", "iloveyou", "monkey",
+    "football", "charlie", "muriuki", "kenya", "aegis"
+];
+
+function hasSequential(str) {
+    const lower = str.toLowerCase();
+    const sequences = ["abcdefgh", "12345678", "qwertyui"];
+    return sequences.some(seq => {
+        for (let i = 0; i <= seq.length - 4; i++) {
+            if (lower.includes(seq.slice(i, i + 4))) return true;
+        }
+        return false;
+    });
+}
+
+function hasRepeatedChars(str) {
+    return /(.)\1\1/.test(str);
+}
+
+function checkPassword(value) {
+
+    const hasUpper = /[A-Z]/.test(value);
+    const hasLower = /[a-z]/.test(value);
+    const hasNum = /[0-9]/.test(value);
+    const hasSymbol = /[^A-Za-z0-9]/.test(value);
+    const isLongEnough = value.length >= 12;
+
+    const lowerValue = value.toLowerCase();
+    const containsCommon = commonPatterns.some(
+        p => lowerValue.includes(p)
+    );
+    const isNotCommon =
+        value.length > 0 &&
+        !containsCommon &&
+        !hasSequential(value) &&
+        !hasRepeatedChars(value);
+
+    setCheck("pwLen", isLongEnough);
+    setCheck("pwUpper", hasUpper);
+    setCheck("pwLower", hasLower);
+    setCheck("pwNum", hasNum);
+    setCheck("pwSymbol", hasSymbol);
+    setCheck("pwCommon", isNotCommon);
+
+    let charsetSize = 0;
+    if (hasLower) charsetSize += 26;
+    if (hasUpper) charsetSize += 26;
+    if (hasNum) charsetSize += 10;
+    if (hasSymbol) charsetSize += 32;
+
+    const entropy =
+        value.length > 0 && charsetSize > 0
+            ? Math.round(value.length * Math.log2(charsetSize))
+            : 0;
+
+    let score = 0;
+    if (isLongEnough) score++;
+    if (hasUpper) score++;
+    if (hasLower) score++;
+    if (hasNum) score++;
+    if (hasSymbol) score++;
+    if (isNotCommon) score++;
+
+    let label, fillPercent, fillColor;
+
+    if (value.length === 0) {
+        label = "Enter a password above";
+        fillPercent = 0;
+        fillColor = "#10233f";
+    } else if (!isNotCommon || score <= 2) {
+        label = "Weak";
+        fillPercent = 25;
+        fillColor = "#ff4d4d";
+    } else if (score <= 4) {
+        label = "Fair";
+        fillPercent = 50;
+        fillColor = "#ffb020";
+    } else if (score === 5) {
+        label = "Strong";
+        fillPercent = 75;
+        fillColor = "#2f80ff";
+    } else {
+        label = "Very Strong";
+        fillPercent = 100;
+        fillColor = "#00e5b0";
+    }
+
+    if (pwLabel) pwLabel.textContent = label;
+
+    if (pwMeterFill) {
+        pwMeterFill.style.width = fillPercent + "%";
+        pwMeterFill.style.background = fillColor;
+    }
+
+    if (pwEntropy) {
+        pwEntropy.textContent =
+            value.length > 0
+                ? `Estimated entropy: ~${entropy} bits`
+                : "";
+    }
+
+}
+
+function setCheck(id, passed) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle("pw-pass", passed);
+    el.classList.toggle("pw-fail", !passed);
+}
+
+if (pwInput) {
+
+    pwInput.addEventListener("input", (e) => {
+        checkPassword(e.target.value);
+    });
+
+    checkPassword("");
+
+}
+
+if (pwToggle && pwInput) {
+
+    pwToggle.addEventListener("click", () => {
+        const isHidden = pwInput.type === "password";
+        pwInput.type = isHidden ? "text" : "password";
+        pwToggle.setAttribute(
+            "aria-label",
+            isHidden ? "Hide password" : "Show password"
+        );
+    });
+
+}
+
+// ==========================
 // LIVE ATTACK COUNTER
 // ==========================
 

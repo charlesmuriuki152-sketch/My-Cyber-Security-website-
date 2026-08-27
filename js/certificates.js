@@ -59,7 +59,8 @@ async function collectPdfsFromFolder(folderPath, branch) {
             pdfs.push({
                 title: cleanTitle(item.name),
                 path: item.path,
-                html_url: item.html_url
+                html_url: item.html_url,
+                download_url: item.download_url
             });
         }
 
@@ -96,11 +97,19 @@ function createCertificateItem(cert, number) {
     link.className = "view-github-btn";
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.textContent = "View on GitHub";
+    link.textContent = "View Certificate";
 
-    // Only trust URLs that actually point to github.com,
+    // Prefer the raw file URL (opens directly in the browser's
+    // native PDF viewer) over the GitHub blob page, since GitHub's
+    // mobile web PDF preview is unreliable ("Unable to render
+    // code block"). Only trust URLs on GitHub's own domains,
     // since this value ultimately comes from repo content.
     if (
+        typeof cert.download_url === "string" &&
+        /^https:\/\/raw\.githubusercontent\.com\//.test(cert.download_url)
+    ) {
+        link.href = cert.download_url;
+    } else if (
         typeof cert.html_url === "string" &&
         /^https:\/\/github\.com\//.test(cert.html_url)
     ) {
@@ -213,7 +222,8 @@ async function loadCertificates() {
             ).map(item => ({
                 title: cleanTitle(item.name),
                 path: item.path,
-                html_url: item.html_url
+                html_url: item.html_url,
+                download_url: item.download_url
             }));
 
         container.innerHTML = "";

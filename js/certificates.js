@@ -99,16 +99,21 @@ function createCertificateItem(cert, number) {
     link.rel = "noopener noreferrer";
     link.textContent = "View Certificate";
 
-    // Prefer the raw file URL (opens directly in the browser's
-    // native PDF viewer) over the GitHub blob page, since GitHub's
-    // mobile web PDF preview is unreliable ("Unable to render
-    // code block"). Only trust URLs on GitHub's own domains,
-    // since this value ultimately comes from repo content.
+    // Route through Google's PDF viewer for a smooth inline
+    // preview (no download prompt). raw.githubusercontent.com
+    // forces a download in most mobile browsers, and GitHub's
+    // own blob page preview is unreliable on mobile web
+    // ("Unable to render code block"). Only trust URLs on
+    // GitHub's own domain, since this value ultimately comes
+    // from repo content.
     if (
         typeof cert.download_url === "string" &&
         /^https:\/\/raw\.githubusercontent\.com\//.test(cert.download_url)
     ) {
-        link.href = cert.download_url;
+        link.href =
+            "https://docs.google.com/viewer?url=" +
+            encodeURIComponent(cert.download_url) +
+            "&embedded=true";
     } else if (
         typeof cert.html_url === "string" &&
         /^https:\/\/github\.com\//.test(cert.html_url)

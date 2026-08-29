@@ -286,8 +286,16 @@ const githubRepos = {
     certificates: "Cyber-Certificates"
 };
 
-// Manually maintained counts for labs that don't yet have a
-// dedicated repo to auto-count from. Update these as new
+// Repos that use a labs-index.json manifest to declare their
+// independent/exploratory labs (see Cybersecurity-Practicals).
+// Add more repo names here later - no other code changes needed.
+// Each entry in labs-index.json looks like:
+//   { "path": "SOC/Brute-Force-Detection", "categories": ["soc","linux"], "type": "practical" }
+// A lab can list multiple categories and gets counted toward each.
+const manifestRepos = ["Cybersecurity-Practicals"];
+
+// Manually maintained base counts for labs that don't come from
+// a manifest or a dedicated counted repo. Update these as new
 // repos/labs are added.
 const manualCounts = {
     linux: 0,        // No dedicated Linux labs repo yet
@@ -303,6 +311,79 @@ const fallbackCounts = {
     python: 5,
     certificates: 1
 };
+
+// ==========================
+// LABS MANIFEST (labs-index.json)
+// ==========================
+
+async function fetchLabsIndex(repo) {
+
+    for (const branch of ["main", "master"]) {
+
+        try {
+
+            const url =
+                `https://raw.githubusercontent.com/${githubUser}/${repo}/${branch}/labs-index.json`;
+
+            const response = await fetch(url, { cache: "no-store" });
+
+            if (!response.ok) continue;
+
+            const data = await response.json();
+
+            if (Array.isArray(data)) return data;
+
+        } catch (error) {
+            // Repo or file doesn't exist yet, or branch mismatch -
+            // this is expected until the manifest is added, so
+            // just move on quietly.
+        }
+
+    }
+
+    return [];
+
+}
+
+function sumCategoriesFromManifest(entries) {
+
+    const totals = {};
+
+    for (const entry of entries) {
+
+        if (!entry || !Array.isArray(entry.categories)) continue;
+
+        for (const category of entry.categories) {
+
+            const key = String(category).toLowerCase();
+            totals[key] = (totals[key] || 0) + 1;
+
+        }
+
+    }
+
+    return totals;
+
+}
+
+async function getManifestTotals() {
+
+    const combined = {};
+
+    for (const repo of manifestRepos) {
+
+        const entries = await fetchLabsIndex(repo);
+        const totals = sumCategoriesFromManifest(entries);
+
+        for (const key in totals) {
+            combined[key] = (combined[key] || 0) + totals[key];
+        }
+
+    }
+
+    return combined;
+
+}
 
 
 // ==========================
@@ -438,9 +519,41 @@ async function loadDashboardCounters() {
 
     }
 
+    // Pull in any independent/exploratory labs declared via
+    // labs-index.json in the practicals repo(s), and add them
+    // on top of the base counts. Silently contributes nothing
+    // until Cybersecurity-Practicals and its manifest exist.
+    let manifestTotals = {};
+
+    try {
+
+        manifestTotals = await getManifestTotals();
+
+        if (Object.keys(manifestTotals).length > 0) {
+            console.log("Labs manifest totals:", manifestTotals);
+        }
+
+    } catch (error) {
+
+        console.warn("Labs manifest unavailable:", error);
+
+    }
+
+    const linuxTotal =
+        manualCounts.linux + (manifestTotals.linux || 0);
+
+    const networkingTotal =
+        manualCounts.networking + (manifestTotals.networking || 0);
+
+    const securityTotal =
+        manualCounts.security + (manifestTotals.security || 0);
+
+    const pythonTotal =
+        pythonCount + (manifestTotals.python || 0);
+
     animateCounter(
         "pythonCount",
-        pythonCount
+        pythonTotal
     );
 
     animateCounter(
@@ -450,13 +563,13 @@ async function loadDashboardCounters() {
 
     animateCounter(
         "linuxCount",
-        manualCounts.linux,
-        "Soon"
+        linuxTotal,
+        linuxTotal === 0 ? "Soon" : undefined
     );
 
     animateCounter(
         "networkCount",
-        manualCounts.networking
+        networkingTotal
     );
 
     animateCounter(
@@ -466,8 +579,8 @@ async function loadDashboardCounters() {
 
     animateCounter(
         "securityCount",
-        manualCounts.security,
-        "Soon"
+        securityTotal,
+        securityTotal === 0 ? "Soon" : undefined
     );
 
 }

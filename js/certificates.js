@@ -99,21 +99,20 @@ function createCertificateItem(cert, number) {
     link.rel = "noopener noreferrer";
     link.textContent = "View Certificate";
 
-    // Route through Google's PDF viewer for a smooth inline
-    // preview (no download prompt). raw.githubusercontent.com
-    // forces a download in most mobile browsers, and GitHub's
-    // own blob page preview is unreliable on mobile web
-    // ("Unable to render code block"). Only trust URLs on
-    // GitHub's own domain, since this value ultimately comes
-    // from repo content.
+    // Link directly to the raw PDF file. Whether the visitor's
+    // browser previews it inline or downloads it depends on their
+    // own settings - that's normal, expected behavior, not a bug.
+    // (Deliberately not routing through a third-party viewer like
+    // Google Docs Viewer - that's an unofficial, undocumented
+    // endpoint that could change or break without notice, and adds
+    // an unnecessary third-party dependency for something this
+    // simple.) Only trust URLs on GitHub's own domain, since this
+    // value ultimately comes from repo content.
     if (
         typeof cert.download_url === "string" &&
         /^https:\/\/raw\.githubusercontent\.com\//.test(cert.download_url)
     ) {
-        link.href =
-            "https://docs.google.com/viewer?url=" +
-            encodeURIComponent(cert.download_url) +
-            "&embedded=true";
+        link.href = cert.download_url;
     } else if (
         typeof cert.html_url === "string" &&
         /^https:\/\/github\.com\//.test(cert.html_url)

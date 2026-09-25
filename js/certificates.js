@@ -29,6 +29,81 @@ async function fetchJson(url) {
     return await response.json();
 }
 
+// ==========================
+// LOCAL CACHE HELPERS
+// ==========================
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function readCacheEntry(key) {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed.timestamp !== "number") return null;
+        return parsed;
+    } catch (error) {
+        return null;
+    }
+}
+
+function getFreshCache(key, ttlMs) {
+    const entry = readCacheEntry(key);
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > ttlMs) return null;
+    return entry.value;
+}
+
+function getStaleCache(key) {
+    const entry = readCacheEntry(key);
+    return entry ? entry.value : null;
+}
+
+function setCache(key, value) {
+    try {
+        localStorage.setItem(
+            key,
+            JSON.stringify({ timestamp: Date.now(), value })
+        );
+    } catch (error) {
+        // Storage full or unavailable - fail silently
+    }
+}
+
+// ==========================
+// FETCH ENTIRE REPO TREE IN ONE CALL (with caching)
+// ==========================
+async function fetchRepoTree() {
+
+    const cacheKey = `aegis_cert_tree_cache_${REPO_NAME}`;
+    const fresh = getFreshCache(cacheKey, CACHE_TTL_MS);
+
+    if (fresh) {
+        console.log("Using cached certificate repo tree (< 1hr old)");
+        return fresh;
+    }
+
+    const repoRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}`,
+        { cache: "no-store" }
+    );
+    if (!repoRes.ok) throw new Error(`Repo error: ${repoRes.status}`);
+    const branch = (await repoRes.json()).default_branch || "main";
+
+    const treeRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+        { cache: "no-store" }
+    );
+    if (!treeRes.ok) throw new Error(`Tree error: ${treeRes.status}`);
+
+    const result = { branch, tree: (await treeRes.json()).tree || [] };
+    setCache(cacheKey, result);
+    return result;
+}
+
+function rawUrl(branch, path) {
+    return `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branch}/${encodePath(path)}`;
+}
+
 function createCertificateItem(cert, number) {
 
     const item = document.createElement("div");
@@ -116,27 +191,54 @@ function createCategoryCard(categoryName, certificates) {
     return card;
 }
 
-async function fetchRepoTree() {
-    const repoRes = await fetch(
-        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}`,
-        { cache: "no-store" }
-    );
-    if (!repoRes.ok) throw new Error(`Repo error: ${repoRes.status}`);
-    const branch = (await repoRes.json()).default_branch || "main";
+// ==========================
+// RENDER CERTIFICATES FROM A TREE RESULT
+// ==========================
+function renderCertificates({ branch, tree }, container) {
 
-    const treeRes = await fetch(
-        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
-        { cache: "no-store" }
+    const pdfFiles = tree.filter(item =>
+        item.type === "blob" && item.path.toLowerCase().endsWith(".pdf")
     );
-    if (!treeRes.ok) throw new Error(`Tree error: ${treeRes.status}`);
 
-    return { branch, tree: (await treeRes.json()).tree || [] };
+    const categories = {};
+
+    for (const file of pdfFiles) {
+        const parts = file.path.split("/");
+        const categoryName = parts.length > 1 ? parts[0] : "General";
+
+        if (!categories[categoryName]) categories[categoryName] = [];
+
+        categories[categoryName].push({
+            title: cleanTitle(parts[parts.length - 1]),
+            path: file.path,
+            html_url: `https://github.com/${GITHUB_USERNAME}/${REPO_NAME}/blob/${branch}/${encodePath(file.path)}`,
+            download_url: rawUrl(branch, file.path)
+        });
+    }
+
+    container.innerHTML = "";
+
+    const names = Object.keys(categories).sort((a, b) => {
+        if (a === "General") return -1;
+        if (b === "General") return 1;
+        return a.localeCompare(b);
+    });
+
+    if (names.length === 0) {
+        const emptyMsg = document.createElement("p");
+        emptyMsg.textContent = "No certificates found.";
+        container.appendChild(emptyMsg);
+        return;
+    }
+
+    names.forEach(name => {
+        container.appendChild(createCategoryCard(name, categories[name]));
+    });
 }
 
-function rawUrl(branch, path) {
-    return `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branch}/${encodePath(path)}`;
-}
-
+// ==========================
+// LOAD CERTIFICATES
+// ==========================
 async function loadCertificates() {
 
     const container = document.getElementById("certificate-categories");
@@ -153,44 +255,28 @@ async function loadCertificates() {
     container.appendChild(loadingMsg);
 
     try {
-        const { branch, tree } = await fetchRepoTree();
-        const pdfFiles = tree.filter(item =>
-            item.type === "blob" && item.path.toLowerCase().endsWith(".pdf")
-        );
-        const categories = {};
-
-        for (const file of pdfFiles) {
-            const parts = file.path.split("/");
-            const categoryName = parts.length > 1 ? parts[0] : "General";
-            if (!categories[categoryName]) categories[categoryName] = [];
-
-            categories[categoryName].push({
-                title: cleanTitle(parts[parts.length - 1]),
-                path: file.path,
-                html_url: `https://github.com/${GITHUB_USERNAME}/${REPO_NAME}/blob/${branch}/${encodePath(file.path)}`,
-                download_url: rawUrl(branch, file.path)
-            });
-        }
-
-        container.innerHTML = "";
-        const names = Object.keys(categories).sort((a, b) => {
-            if (a === "General") return -1;
-            if (b === "General") return 1;
-            return a.localeCompare(b);
-        });
-
-        if (names.length === 0) {
-            const emptyMsg = document.createElement("p");
-            emptyMsg.textContent = "No certificates found.";
-            container.appendChild(emptyMsg);
-            return;
-        }
-
-        names.forEach(name => {
-            container.appendChild(createCategoryCard(name, categories[name]));
-        });
+        const treeResult = await fetchRepoTree();
+        renderCertificates(treeResult, container);
     } catch (error) {
         console.error("Certificate Engine Error:", error);
+
+        const staleKey = `aegis_cert_tree_cache_${REPO_NAME}`;
+        const stale = getStaleCache(staleKey);
+
+        if (stale) {
+            console.log("Using stale cached certificate tree as fallback:", stale);
+
+            try {
+                renderCertificates(stale, container);
+                return;
+            } catch (renderError) {
+                console.error(
+                    "Failed to render stale cached certificates:",
+                    renderError
+                );
+            }
+        }
+
         const errorMsg = document.createElement("p");
         errorMsg.style.color = "red";
         errorMsg.textContent = "Unable to load certificates. Please try again later.";
@@ -199,87 +285,7 @@ async function loadCertificates() {
     }
 }
 
-// Keep every account-backed counter synchronized with the public GitHub account.
-// Repository classifications are based on repository names/descriptions; project
-// count is the complete public repository count, and Python/certificate counts
-// are based on actual files in the corresponding repositories.
-async function fetchAllPublicRepositories() {
-    const repositories = [];
-
-    for (let page = 1; page <= 10; page++) {
-        const pageData = await fetchJson(
-            `https://api.github.com/users/${GITHUB_USERNAME}/repos?type=owner&per_page=100&page=${page}`
-        );
-        repositories.push(...pageData);
-        if (pageData.length < 100) break;
-    }
-
-    return repositories.filter(repo =>
-        !repo.private && !repo.archived && !repo.fork
-    );
-}
-
-async function countFilesInRepository(repository, extension) {
-    const branch = repository.default_branch || "main";
-    const tree = await fetchJson(
-        `https://api.github.com/repos/${GITHUB_USERNAME}/${encodeURIComponent(repository.name)}/git/trees/${encodeURIComponent(branch)}?recursive=1`
-    );
-
-    return (tree.tree || []).filter(item =>
-        item.type === "blob" &&
-        typeof item.path === "string" &&
-        item.path.toLowerCase().endsWith(extension)
-    ).length;
-}
-
-function updateCounter(id, value, zeroLabel) {
-    const element = document.getElementById(id);
-    if (!element) return;
-    element.textContent = value === 0 && zeroLabel ? zeroLabel : String(value);
-}
-
-async function syncGithubAccountCounts() {
-    try {
-        const [profile, repositories] = await Promise.all([
-            fetchJson(`https://api.github.com/users/${GITHUB_USERNAME}`),
-            fetchAllPublicRepositories()
-        ]);
-
-        const repoCount = repositories.length;
-        updateCounter("githubRepoCount", repoCount);
-        updateCounter("githubFollowerCount", profile.followers ?? 0);
-
-        const repositoryText = repositories.map(repo =>
-            `${repo.name} ${repo.description || ""}`.toLowerCase()
-        );
-        const matches = terms => repositoryText.filter(text =>
-            terms.some(term => text.includes(term))
-        ).length;
-
-        const pythonRepository = repositories.find(repo =>
-            repo.name.toLowerCase() === "python-"
-        );
-        const certificateRepository = repositories.find(repo =>
-            repo.name.toLowerCase() === "cyber-certificates"
-        );
-
-        const [pythonCount, certificateCount] = await Promise.all([
-            pythonRepository ? countFilesInRepository(pythonRepository, ".py") : 0,
-            certificateRepository ? countFilesInRepository(certificateRepository, ".pdf") : 0
-        ]);
-
-        updateCounter("pythonCount", pythonCount, "Soon");
-        updateCounter("certCount", certificateCount, "Soon");
-        updateCounter("projectCount", repoCount, "Soon");
-        updateCounter("linuxCount", matches(["linux", "kali", "ubuntu", "termux"]), "Soon");
-        updateCounter("networkCount", matches(["network", "packet tracer", "cisco", "wireshark"]), "Soon");
-        updateCounter("securityCount", matches(["security", "cyber", "soc", "ethical hacking", "penetration"]), "Soon");
-    } catch (error) {
-        console.warn("GitHub account counters unavailable:", error);
-        // Do not replace live values with invented fallback values.
-        // The existing placeholders remain visible when GitHub is unavailable.
-    }
-}
-
-document.addEventListener("DOMContentLoaded", loadCertificates);
-window.addEventListener("load", syncGithubAccountCounts);
+document.addEventListener(
+    "DOMContentLoaded",
+    loadCertificates
+);

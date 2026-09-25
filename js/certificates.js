@@ -29,52 +29,35 @@ async function fetchJson(url) {
     return await response.json();
 }
 
-async function getDefaultBranch() {
-    const repo = await fetchJson(
-        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}`
+// ==========================
+// FETCH ENTIRE REPO TREE IN ONE CALL
+// ==========================
+// Replaces the old per-folder walk (getDefaultBranch +
+// getFolderContents + collectPdfsFromFolder), which made one
+// API call per folder/subfolder and was slow and prone to
+// failing entirely if any single nested call errored or the
+// unauthenticated GitHub rate limit (60 requests/hour/IP) was
+// hit partway through. This does it in two calls total,
+// regardless of how many folders exist.
+async function fetchRepoTree() {
+    const repoRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}`,
+        { cache: "no-store" }
     );
+    if (!repoRes.ok) throw new Error(`Repo error: ${repoRes.status}`);
+    const branch = (await repoRes.json()).default_branch || "main";
 
-    return repo.default_branch || "main";
+    const treeRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+        { cache: "no-store" }
+    );
+    if (!treeRes.ok) throw new Error(`Tree error: ${treeRes.status}`);
+
+    return { branch, tree: (await treeRes.json()).tree || [] };
 }
 
-async function getFolderContents(path, branch) {
-    const url = path
-        ? `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${encodePath(path)}?ref=${encodeURIComponent(branch)}`
-        : `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents?ref=${encodeURIComponent(branch)}`;
-
-    return await fetchJson(url);
-}
-
-async function collectPdfsFromFolder(folderPath, branch) {
-    const items = await getFolderContents(folderPath, branch);
-
-    let pdfs = [];
-
-    for (const item of items) {
-
-        if (
-            item.type === "file" &&
-            item.name.toLowerCase().endsWith(".pdf")
-        ) {
-            pdfs.push({
-                title: cleanTitle(item.name),
-                path: item.path,
-                html_url: item.html_url,
-                download_url: item.download_url
-            });
-        }
-
-        if (item.type === "dir") {
-            const nested = await collectPdfsFromFolder(
-                item.path,
-                branch
-            );
-
-            pdfs = pdfs.concat(nested);
-        }
-    }
-
-    return pdfs;
+function rawUrl(branch, path) {
+    return `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branch}/${encodePath(path)}`;
 }
 
 function createCertificateItem(cert, number) {
@@ -185,101 +168,70 @@ function createCategoryCard(categoryName, certificates) {
     return card;
 }
 
+// ==========================
+// LOAD CERTIFICATES (single tree fetch, grouped by top folder)
+// ==========================
 async function loadCertificates() {
 
-    const container =
-        document.getElementById("certificate-categories");
+    const container = document.getElementById("certificate-categories");
 
     if (!container) {
-
-        console.error(
-            "Certificate container #certificate-categories not found."
-        );
-
+        console.error("Certificate container #certificate-categories not found.");
         return;
     }
 
+    container.innerHTML = "";
     const loadingMsg = document.createElement("p");
     loadingMsg.className = "certificate-loading";
     loadingMsg.textContent = "Loading certificates...";
-    container.innerHTML = "";
     container.appendChild(loadingMsg);
 
     try {
 
-        const branch =
-            await getDefaultBranch();
+        const { branch, tree } = await fetchRepoTree();
 
-        const rootItems =
-            await getFolderContents("", branch);
+        const pdfFiles = tree.filter(item =>
+            item.type === "blob" && item.path.toLowerCase().endsWith(".pdf")
+        );
 
-        const folders =
-            rootItems.filter(
-                item => item.type === "dir"
-            );
+        const categories = {};
 
-        const rootPdfs =
-            rootItems.filter(
-                item =>
-                    item.type === "file" &&
-                    item.name.toLowerCase().endsWith(".pdf")
-            ).map(item => ({
-                title: cleanTitle(item.name),
-                path: item.path,
-                html_url: item.html_url,
-                download_url: item.download_url
-            }));
+        for (const file of pdfFiles) {
+            const parts = file.path.split("/");
+            const categoryName = parts.length > 1 ? parts[0] : "General";
+
+            if (!categories[categoryName]) categories[categoryName] = [];
+
+            categories[categoryName].push({
+                title: cleanTitle(parts[parts.length - 1]),
+                path: file.path,
+                html_url: `https://github.com/${GITHUB_USERNAME}/${REPO_NAME}/blob/${branch}/${encodePath(file.path)}`,
+                download_url: rawUrl(branch, file.path)
+            });
+        }
 
         container.innerHTML = "";
 
-        // Certificates placed directly at the repo root
-        // (not inside a category folder) still get shown,
-        // grouped under "General".
-        if (rootPdfs.length > 0) {
+        const names = Object.keys(categories).sort((a, b) => {
+            if (a === "General") return -1;
+            if (b === "General") return 1;
+            return a.localeCompare(b);
+        });
 
-            const generalCard =
-                createCategoryCard(
-                    "General",
-                    rootPdfs
-                );
-
-            container.appendChild(generalCard);
-        }
-
-        for (const folder of folders) {
-
-            const pdfs =
-                await collectPdfsFromFolder(
-                    folder.path,
-                    branch
-                );
-
-            if (pdfs.length === 0) {
-                continue;
-            }
-
-            const card =
-                createCategoryCard(
-                    folder.name,
-                    pdfs
-                );
-
-            container.appendChild(card);
-        }
-
-        if (container.children.length === 0) {
-
+        if (names.length === 0) {
             const emptyMsg = document.createElement("p");
             emptyMsg.textContent = "No certificates found.";
             container.appendChild(emptyMsg);
+            return;
         }
+
+        names.forEach(name => {
+            container.appendChild(createCategoryCard(name, categories[name]));
+        });
 
     } catch (error) {
 
-        console.error(
-            "Certificate Engine Error:",
-            error
-        );
+        console.error("Certificate Engine Error:", error);
 
         const errorMsg = document.createElement("p");
         errorMsg.style.color = "red";

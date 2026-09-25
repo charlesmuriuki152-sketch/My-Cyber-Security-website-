@@ -51,15 +51,6 @@ function createCertificateItem(cert, number) {
     link.rel = "noopener noreferrer";
     link.textContent = "View Certificate";
 
-    // Link directly to the raw PDF file. Whether the visitor's
-    // browser previews it inline or downloads it depends on their
-    // own settings - that's normal, expected behavior, not a bug.
-    // (Deliberately not routing through a third-party viewer like
-    // Google Docs Viewer - that's an unofficial, undocumented
-    // endpoint that could change or break without notice, and adds
-    // an unnecessary third-party dependency for something this
-    // simple.) Only trust URLs on GitHub's own domain, since this
-    // value ultimately comes from repo content.
     if (
         typeof cert.download_url === "string" &&
         /^https:\/\/raw\.githubusercontent\.com\//.test(cert.download_url)
@@ -77,7 +68,6 @@ function createCertificateItem(cert, number) {
 
     details.appendChild(title);
     details.appendChild(link);
-
     item.appendChild(numberDiv);
     item.appendChild(details);
 
@@ -115,23 +105,12 @@ function createCategoryCard(categoryName, certificates) {
     card.appendChild(list);
 
     certificates.forEach((cert, index) => {
-
-        list.appendChild(
-            createCertificateItem(cert, index + 1)
-        );
-
+        list.appendChild(createCertificateItem(cert, index + 1));
     });
 
     toggle.addEventListener("click", () => {
-
-        const open =
-            card.classList.toggle("open");
-
-        toggle.setAttribute(
-            "aria-expanded",
-            open ? "true" : "false"
-        );
-
+        const open = card.classList.toggle("open");
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
     });
 
     return card;
@@ -174,19 +153,15 @@ async function loadCertificates() {
     container.appendChild(loadingMsg);
 
     try {
-
         const { branch, tree } = await fetchRepoTree();
-
         const pdfFiles = tree.filter(item =>
             item.type === "blob" && item.path.toLowerCase().endsWith(".pdf")
         );
-
         const categories = {};
 
         for (const file of pdfFiles) {
             const parts = file.path.split("/");
             const categoryName = parts.length > 1 ? parts[0] : "General";
-
             if (!categories[categoryName]) categories[categoryName] = [];
 
             categories[categoryName].push({
@@ -198,7 +173,6 @@ async function loadCertificates() {
         }
 
         container.innerHTML = "";
-
         const names = Object.keys(categories).sort((a, b) => {
             if (a === "General") return -1;
             if (b === "General") return 1;
@@ -215,11 +189,8 @@ async function loadCertificates() {
         names.forEach(name => {
             container.appendChild(createCategoryCard(name, categories[name]));
         });
-
     } catch (error) {
-
         console.error("Certificate Engine Error:", error);
-
         const errorMsg = document.createElement("p");
         errorMsg.style.color = "red";
         errorMsg.textContent = "Unable to load certificates. Please try again later.";
@@ -228,7 +199,87 @@ async function loadCertificates() {
     }
 }
 
-document.addEventListener(
-    "DOMContentLoaded",
-    loadCertificates
-);
+// Keep every account-backed counter synchronized with the public GitHub account.
+// Repository classifications are based on repository names/descriptions; project
+// count is the complete public repository count, and Python/certificate counts
+// are based on actual files in the corresponding repositories.
+async function fetchAllPublicRepositories() {
+    const repositories = [];
+
+    for (let page = 1; page <= 10; page++) {
+        const pageData = await fetchJson(
+            `https://api.github.com/users/${GITHUB_USERNAME}/repos?type=owner&per_page=100&page=${page}`
+        );
+        repositories.push(...pageData);
+        if (pageData.length < 100) break;
+    }
+
+    return repositories.filter(repo =>
+        !repo.private && !repo.archived && !repo.fork
+    );
+}
+
+async function countFilesInRepository(repository, extension) {
+    const branch = repository.default_branch || "main";
+    const tree = await fetchJson(
+        `https://api.github.com/repos/${GITHUB_USERNAME}/${encodeURIComponent(repository.name)}/git/trees/${encodeURIComponent(branch)}?recursive=1`
+    );
+
+    return (tree.tree || []).filter(item =>
+        item.type === "blob" &&
+        typeof item.path === "string" &&
+        item.path.toLowerCase().endsWith(extension)
+    ).length;
+}
+
+function updateCounter(id, value, zeroLabel) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    element.textContent = value === 0 && zeroLabel ? zeroLabel : String(value);
+}
+
+async function syncGithubAccountCounts() {
+    try {
+        const [profile, repositories] = await Promise.all([
+            fetchJson(`https://api.github.com/users/${GITHUB_USERNAME}`),
+            fetchAllPublicRepositories()
+        ]);
+
+        const repoCount = repositories.length;
+        updateCounter("githubRepoCount", repoCount);
+        updateCounter("githubFollowerCount", profile.followers ?? 0);
+
+        const repositoryText = repositories.map(repo =>
+            `${repo.name} ${repo.description || ""}`.toLowerCase()
+        );
+        const matches = terms => repositoryText.filter(text =>
+            terms.some(term => text.includes(term))
+        ).length;
+
+        const pythonRepository = repositories.find(repo =>
+            repo.name.toLowerCase() === "python-"
+        );
+        const certificateRepository = repositories.find(repo =>
+            repo.name.toLowerCase() === "cyber-certificates"
+        );
+
+        const [pythonCount, certificateCount] = await Promise.all([
+            pythonRepository ? countFilesInRepository(pythonRepository, ".py") : 0,
+            certificateRepository ? countFilesInRepository(certificateRepository, ".pdf") : 0
+        ]);
+
+        updateCounter("pythonCount", pythonCount, "Soon");
+        updateCounter("certCount", certificateCount, "Soon");
+        updateCounter("projectCount", repoCount, "Soon");
+        updateCounter("linuxCount", matches(["linux", "kali", "ubuntu", "termux"]), "Soon");
+        updateCounter("networkCount", matches(["network", "packet tracer", "cisco", "wireshark"]), "Soon");
+        updateCounter("securityCount", matches(["security", "cyber", "soc", "ethical hacking", "penetration"]), "Soon");
+    } catch (error) {
+        console.warn("GitHub account counters unavailable:", error);
+        // Do not replace live values with invented fallback values.
+        // The existing placeholders remain visible when GitHub is unavailable.
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadCertificates);
+window.addEventListener("load", syncGithubAccountCounts);

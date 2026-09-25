@@ -29,37 +29,6 @@ async function fetchJson(url) {
     return await response.json();
 }
 
-// ==========================
-// FETCH ENTIRE REPO TREE IN ONE CALL
-// ==========================
-// Replaces the old per-folder walk (getDefaultBranch +
-// getFolderContents + collectPdfsFromFolder), which made one
-// API call per folder/subfolder and was slow and prone to
-// failing entirely if any single nested call errored or the
-// unauthenticated GitHub rate limit (60 requests/hour/IP) was
-// hit partway through. This does it in two calls total,
-// regardless of how many folders exist.
-async function fetchRepoTree() {
-    const repoRes = await fetch(
-        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}`,
-        { cache: "no-store" }
-    );
-    if (!repoRes.ok) throw new Error(`Repo error: ${repoRes.status}`);
-    const branch = (await repoRes.json()).default_branch || "main";
-
-    const treeRes = await fetch(
-        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
-        { cache: "no-store" }
-    );
-    if (!treeRes.ok) throw new Error(`Tree error: ${treeRes.status}`);
-
-    return { branch, tree: (await treeRes.json()).tree || [] };
-}
-
-function rawUrl(branch, path) {
-    return `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branch}/${encodePath(path)}`;
-}
-
 function createCertificateItem(cert, number) {
 
     const item = document.createElement("div");
@@ -168,9 +137,27 @@ function createCategoryCard(categoryName, certificates) {
     return card;
 }
 
-// ==========================
-// LOAD CERTIFICATES (single tree fetch, grouped by top folder)
-// ==========================
+async function fetchRepoTree() {
+    const repoRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}`,
+        { cache: "no-store" }
+    );
+    if (!repoRes.ok) throw new Error(`Repo error: ${repoRes.status}`);
+    const branch = (await repoRes.json()).default_branch || "main";
+
+    const treeRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/git/trees/${encodeURIComponent(branch)}?recursive=1`,
+        { cache: "no-store" }
+    );
+    if (!treeRes.ok) throw new Error(`Tree error: ${treeRes.status}`);
+
+    return { branch, tree: (await treeRes.json()).tree || [] };
+}
+
+function rawUrl(branch, path) {
+    return `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${branch}/${encodePath(path)}`;
+}
+
 async function loadCertificates() {
 
     const container = document.getElementById("certificate-categories");

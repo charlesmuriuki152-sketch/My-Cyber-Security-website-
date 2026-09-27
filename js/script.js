@@ -245,6 +245,64 @@ canvas.height=window.innerHeight;
 });
 
 }
+
+// ==========================
+// LOCAL CACHE HELPERS
+// ==========================
+// Used to avoid re-hitting the GitHub API on every page load/reload.
+// Unauthenticated GitHub API calls are capped at 60 requests/hour
+// per visitor IP, shared across every fetch this page makes. A
+// short-lived cache in the visitor's own browser cuts repeat-visit
+// and repeat-reload traffic dramatically, without needing a backend
+// or exposing any credentials client-side.
+//
+// getFreshCache  -> value only if it's younger than the given TTL
+// getStaleCache  -> value regardless of age (used as a fallback if
+//                   a live fetch fails, so the page can still show
+//                   the last known-good numbers instead of a
+//                   hardcoded default)
+// setCache       -> stores a value with the current timestamp
+
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function readCacheEntry(key) {
+    try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed.timestamp !== "number") return null;
+        return parsed;
+    } catch (error) {
+        // localStorage unavailable (private browsing, storage full,
+        // corrupted entry, etc.) - treat as a cache miss.
+        return null;
+    }
+}
+
+function getFreshCache(key, ttlMs) {
+    const entry = readCacheEntry(key);
+    if (!entry) return null;
+    if (Date.now() - entry.timestamp > ttlMs) return null;
+    return entry.value;
+}
+
+function getStaleCache(key) {
+    const entry = readCacheEntry(key);
+    return entry ? entry.value : null;
+}
+
+function setCache(key, value) {
+    try {
+        localStorage.setItem(
+            key,
+            JSON.stringify({ timestamp: Date.now(), value })
+        );
+    } catch (error) {
+        // Storage full or unavailable - fail silently, the page
+        // still works, it just won't cache this time.
+    }
+}
+
 // ==========================
 // DASHBOARD COUNTERS
 // ==========================
@@ -305,8 +363,9 @@ const manualCounts = {
 };
 
 // Fallback values used if the GitHub API is unreachable or
-// rate-limited, so the dashboard never silently shows 0 for
-// counts that do have real content.
+// rate-limited AND there's no cached data at all yet, so the
+// dashboard never silently shows 0 for counts that do have real
+// content.
 const fallbackCounts = {
     python: 5,
     certificates: 1
@@ -483,59 +542,104 @@ async function countCertificates() {
 
 async function loadDashboardCounters() {
 
+    const cacheKey = "aegis_dashboard_cache";
+
     let pythonCount = fallbackCounts.python;
     let certCount = fallbackCounts.certificates;
-
-    try {
-
-        const [
-            livePythonCount,
-            liveCertCount
-        ] = await Promise.all([
-
-            countPythonLabs(),
-
-            countCertificates()
-
-        ]);
-
-        console.log(
-            "GitHub Dashboard (live):",
-            {
-                pythonLabs: livePythonCount,
-                certificates: liveCertCount
-            }
-        );
-
-        pythonCount = livePythonCount;
-        certCount = liveCertCount;
-
-    } catch (error) {
-
-        console.warn(
-            "GitHub API unavailable, using fallback counts:",
-            error
-        );
-
-    }
-
-    // Pull in any independent/exploratory labs declared via
-    // labs-index.json in the practicals repo(s), and add them
-    // on top of the base counts. Silently contributes nothing
-    // until Cybersecurity-Practicals and its manifest exist.
     let manifestTotals = {};
 
-    try {
+    const fresh = getFreshCache(cacheKey, CACHE_TTL_MS);
 
-        manifestTotals = await getManifestTotals();
+    if (fresh) {
 
-        if (Object.keys(manifestTotals).length > 0) {
-            console.log("Labs manifest totals:", manifestTotals);
+        pythonCount = fresh.pythonCount;
+        certCount = fresh.certCount;
+        manifestTotals = fresh.manifestTotals || {};
+
+        console.log(
+            "Using cached dashboard counts (< 1hr old):",
+            fresh
+        );
+
+    } else {
+
+        try {
+
+            const [
+                livePythonCount,
+                liveCertCount
+            ] = await Promise.all([
+
+                countPythonLabs(),
+
+                countCertificates()
+
+            ]);
+
+            console.log(
+                "GitHub Dashboard (live):",
+                {
+                    pythonLabs: livePythonCount,
+                    certificates: liveCertCount
+                }
+            );
+
+            pythonCount = livePythonCount;
+            certCount = liveCertCount;
+
+        } catch (error) {
+
+            console.warn(
+                "GitHub API unavailable, checking for a cached fallback:",
+                error
+            );
+
+            const stale = getStaleCache(cacheKey);
+
+            if (stale) {
+                pythonCount = stale.pythonCount;
+                certCount = stale.certCount;
+                console.log(
+                    "Using stale cached counts as fallback:",
+                    stale
+                );
+            } else {
+                console.warn(
+                    "No cache available either, using hardcoded fallback counts."
+                );
+            }
+
         }
 
-    } catch (error) {
+        // Pull in any independent/exploratory labs declared via
+        // labs-index.json in the practicals repo(s), and add them
+        // on top of the base counts. Silently contributes nothing
+        // until Cybersecurity-Practicals and its manifest exist.
+        try {
 
-        console.warn("Labs manifest unavailable:", error);
+            manifestTotals = await getManifestTotals();
+
+            if (Object.keys(manifestTotals).length > 0) {
+                console.log("Labs manifest totals:", manifestTotals);
+            }
+
+        } catch (error) {
+
+            console.warn("Labs manifest unavailable:", error);
+
+            const stale = getStaleCache(cacheKey);
+
+            if (stale && stale.manifestTotals) {
+                manifestTotals = stale.manifestTotals;
+            }
+
+        }
+
+        setCache(cacheKey, {
+            pythonCount,
+            certCount,
+            manifestTotals
+        });
 
     }
 
@@ -592,6 +696,20 @@ async function loadGithubProfileStats() {
 
     if (!repoEl || !followerEl) return;
 
+    const cacheKey = "aegis_profile_stats_cache";
+
+    const fresh = getFreshCache(cacheKey, CACHE_TTL_MS);
+
+    if (fresh) {
+        repoEl.textContent = fresh.repos ?? "—";
+        followerEl.textContent = fresh.followers ?? "—";
+        console.log(
+            "Using cached GitHub profile stats (< 1hr old):",
+            fresh
+        );
+        return;
+    }
+
     try {
 
         const response = await fetch(
@@ -602,14 +720,31 @@ async function loadGithubProfileStats() {
 
         const data = await response.json();
 
-        repoEl.textContent = data.public_repos ?? "—";
-        followerEl.textContent = data.followers ?? "—";
+        const repos = data.public_repos ?? "—";
+        const followers = data.followers ?? "—";
+
+        repoEl.textContent = repos;
+        followerEl.textContent = followers;
+
+        setCache(cacheKey, { repos, followers });
 
     } catch (error) {
 
         console.warn("GitHub profile stats unavailable:", error);
-        repoEl.textContent = "—";
-        followerEl.textContent = "—";
+
+        const stale = getStaleCache(cacheKey);
+
+        if (stale) {
+            repoEl.textContent = stale.repos ?? "—";
+            followerEl.textContent = stale.followers ?? "—";
+            console.log(
+                "Using stale cached profile stats as fallback:",
+                stale
+            );
+        } else {
+            repoEl.textContent = "—";
+            followerEl.textContent = "—";
+        }
 
     }
 

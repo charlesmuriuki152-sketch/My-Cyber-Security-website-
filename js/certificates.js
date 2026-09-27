@@ -30,13 +30,19 @@ async function fetchJson(url) {
 }
 
 // ==========================
-// LOCAL CACHE HELPERS (certificates-specific names to avoid
-// clashing with script.js, since both files share one global
-// scope as plain <script> tags)
+// LOCAL CACHE HELPERS
 // ==========================
-const CERT_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+// Same pattern used in script.js for the dashboard counters, kept
+// as a separate copy here since this file loads independently.
+// Unauthenticated GitHub API calls are capped at 60 requests/hour
+// per visitor IP, shared across every fetch this page makes. A
+// short-lived cache in the visitor's own browser cuts repeat-visit
+// and repeat-reload traffic dramatically, without needing a backend
+// or exposing any credentials client-side.
 
-function certReadCacheEntry(key) {
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function readCacheEntry(key) {
     try {
         const raw = localStorage.getItem(key);
         if (!raw) return null;
@@ -44,41 +50,49 @@ function certReadCacheEntry(key) {
         if (!parsed || typeof parsed.timestamp !== "number") return null;
         return parsed;
     } catch (error) {
+        // localStorage unavailable (private browsing, storage full,
+        // corrupted entry, etc.) - treat as a cache miss.
         return null;
     }
 }
 
-function certGetFreshCache(key, ttlMs) {
-    const entry = certReadCacheEntry(key);
+function getFreshCache(key, ttlMs) {
+    const entry = readCacheEntry(key);
     if (!entry) return null;
     if (Date.now() - entry.timestamp > ttlMs) return null;
     return entry.value;
 }
 
-function certGetStaleCache(key) {
-    const entry = certReadCacheEntry(key);
+function getStaleCache(key) {
+    const entry = readCacheEntry(key);
     return entry ? entry.value : null;
 }
 
-function certSetCache(key, value) {
+function setCache(key, value) {
     try {
         localStorage.setItem(
             key,
             JSON.stringify({ timestamp: Date.now(), value })
         );
     } catch (error) {
-        // Storage full or unavailable - fail silently
+        // Storage full or unavailable - fail silently, the page
+        // still works, it just won't cache this time.
     }
 }
 
 // ==========================
 // FETCH ENTIRE REPO TREE IN ONE CALL (with caching)
 // ==========================
+// Gets the whole Cyber-Certificates repo file tree in two API
+// calls total (repo info + recursive tree), instead of one call
+// per folder/subfolder. Results are cached in the visitor's
+// browser for an hour so repeat visits/reloads don't re-hit the
+// API at all.
 async function fetchRepoTree() {
 
     const cacheKey = `aegis_cert_tree_cache_${REPO_NAME}`;
 
-    const fresh = certGetFreshCache(cacheKey, CERT_CACHE_TTL_MS);
+    const fresh = getFreshCache(cacheKey, CACHE_TTL_MS);
 
     if (fresh) {
         console.log("Using cached certificate repo tree (< 1hr old)");
@@ -100,7 +114,7 @@ async function fetchRepoTree() {
 
     const result = { branch, tree: (await treeRes.json()).tree || [] };
 
-    certSetCache(cacheKey, result);
+    setCache(cacheKey, result);
 
     return result;
 }
@@ -131,6 +145,15 @@ function createCertificateItem(cert, number) {
     link.rel = "noopener noreferrer";
     link.textContent = "View Certificate";
 
+    // Link directly to the raw PDF file. Whether the visitor's
+    // browser previews it inline or downloads it depends on their
+    // own settings - that's normal, expected behavior, not a bug.
+    // (Deliberately not routing through a third-party viewer like
+    // Google Docs Viewer - that's an unofficial, undocumented
+    // endpoint that could change or break without notice, and adds
+    // an unnecessary third-party dependency for something this
+    // simple.) Only trust URLs on GitHub's own domain, since this
+    // value ultimately comes from repo content.
     if (
         typeof cert.download_url === "string" &&
         /^https:\/\/raw\.githubusercontent\.com\//.test(cert.download_url)
@@ -208,6 +231,12 @@ function createCategoryCard(categoryName, certificates) {
     return card;
 }
 
+// ==========================
+// RENDER CERTIFICATES FROM A TREE RESULT
+// ==========================
+// Pulled out of loadCertificates so it can be reused both for a
+// fresh/cached fetch and for a stale-cache fallback if a live
+// fetch fails (e.g. rate limited).
 function renderCertificates({ branch, tree }, container) {
 
     const pdfFiles = tree.filter(item =>
@@ -250,6 +279,9 @@ function renderCertificates({ branch, tree }, container) {
     });
 }
 
+// ==========================
+// LOAD CERTIFICATES
+// ==========================
 async function loadCertificates() {
 
     const container = document.getElementById("certificate-categories");
@@ -275,7 +307,7 @@ async function loadCertificates() {
         console.error("Certificate Engine Error:", error);
 
         const staleKey = `aegis_cert_tree_cache_${REPO_NAME}`;
-        const stale = certGetStaleCache(staleKey);
+        const stale = getStaleCache(staleKey);
 
         if (stale) {
 

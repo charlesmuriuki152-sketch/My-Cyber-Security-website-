@@ -52,3 +52,9 @@ function certGetFreshCache(key, ttlMs) {
     const entry = certReadCacheEntry(key);
     if (!entry) return null;
     if (Date.now() - entry.timestamp > ttlMs) return null;
+    return entry.value;
+}
+
+function certGetStaleCache(key) {
+    const entry = certReadCacheEntry(key);
+    return entry ?

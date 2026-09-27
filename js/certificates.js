@@ -30,11 +30,13 @@ async function fetchJson(url) {
 }
 
 // ==========================
-// LOCAL CACHE HELPERS
+// LOCAL CACHE HELPERS (certificates-specific names to avoid
+// clashing with script.js, since both files share one global
+// scope as plain <script> tags)
 // ==========================
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const CERT_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-function readCacheEntry(key) {
+function certReadCacheEntry(key) {
     try {
         const raw = localStorage.getItem(key);
         if (!raw) return null;
@@ -46,19 +48,19 @@ function readCacheEntry(key) {
     }
 }
 
-function getFreshCache(key, ttlMs) {
-    const entry = readCacheEntry(key);
+function certGetFreshCache(key, ttlMs) {
+    const entry = certReadCacheEntry(key);
     if (!entry) return null;
     if (Date.now() - entry.timestamp > ttlMs) return null;
     return entry.value;
 }
 
-function getStaleCache(key) {
-    const entry = readCacheEntry(key);
+function certGetStaleCache(key) {
+    const entry = certReadCacheEntry(key);
     return entry ? entry.value : null;
 }
 
-function setCache(key, value) {
+function certSetCache(key, value) {
     try {
         localStorage.setItem(
             key,
@@ -76,7 +78,7 @@ async function fetchRepoTree() {
 
     const cacheKey = `aegis_cert_tree_cache_${REPO_NAME}`;
 
-    const fresh = getFreshCache(cacheKey, CACHE_TTL_MS);
+    const fresh = certGetFreshCache(cacheKey, CERT_CACHE_TTL_MS);
 
     if (fresh) {
         console.log("Using cached certificate repo tree (< 1hr old)");
@@ -98,7 +100,7 @@ async function fetchRepoTree() {
 
     const result = { branch, tree: (await treeRes.json()).tree || [] };
 
-    setCache(cacheKey, result);
+    certSetCache(cacheKey, result);
 
     return result;
 }
@@ -206,9 +208,6 @@ function createCategoryCard(categoryName, certificates) {
     return card;
 }
 
-// ==========================
-// RENDER CERTIFICATES FROM A TREE RESULT
-// ==========================
 function renderCertificates({ branch, tree }, container) {
 
     const pdfFiles = tree.filter(item =>
@@ -251,9 +250,6 @@ function renderCertificates({ branch, tree }, container) {
     });
 }
 
-// ==========================
-// LOAD CERTIFICATES
-// ==========================
 async function loadCertificates() {
 
     const container = document.getElementById("certificate-categories");
@@ -279,7 +275,7 @@ async function loadCertificates() {
         console.error("Certificate Engine Error:", error);
 
         const staleKey = `aegis_cert_tree_cache_${REPO_NAME}`;
-        const stale = getStaleCache(staleKey);
+        const stale = certGetStaleCache(staleKey);
 
         if (stale) {
 

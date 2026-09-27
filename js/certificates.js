@@ -75,6 +75,7 @@ function setCache(key, value) {
 async function fetchRepoTree() {
 
     const cacheKey = `aegis_cert_tree_cache_${REPO_NAME}`;
+
     const fresh = getFreshCache(cacheKey, CACHE_TTL_MS);
 
     if (fresh) {
@@ -96,7 +97,9 @@ async function fetchRepoTree() {
     if (!treeRes.ok) throw new Error(`Tree error: ${treeRes.status}`);
 
     const result = { branch, tree: (await treeRes.json()).tree || [] };
+
     setCache(cacheKey, result);
+
     return result;
 }
 
@@ -143,6 +146,7 @@ function createCertificateItem(cert, number) {
 
     details.appendChild(title);
     details.appendChild(link);
+
     item.appendChild(numberDiv);
     item.appendChild(details);
 
@@ -180,12 +184,23 @@ function createCategoryCard(categoryName, certificates) {
     card.appendChild(list);
 
     certificates.forEach((cert, index) => {
-        list.appendChild(createCertificateItem(cert, index + 1));
+
+        list.appendChild(
+            createCertificateItem(cert, index + 1)
+        );
+
     });
 
     toggle.addEventListener("click", () => {
-        const open = card.classList.toggle("open");
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+
+        const open =
+            card.classList.toggle("open");
+
+        toggle.setAttribute(
+            "aria-expanded",
+            open ? "true" : "false"
+        );
+
     });
 
     return card;
@@ -255,16 +270,23 @@ async function loadCertificates() {
     container.appendChild(loadingMsg);
 
     try {
+
         const treeResult = await fetchRepoTree();
         renderCertificates(treeResult, container);
+
     } catch (error) {
+
         console.error("Certificate Engine Error:", error);
 
         const staleKey = `aegis_cert_tree_cache_${REPO_NAME}`;
         const stale = getStaleCache(staleKey);
 
         if (stale) {
-            console.log("Using stale cached certificate tree as fallback:", stale);
+
+            console.log(
+                "Using stale cached certificate tree as fallback:",
+                stale
+            );
 
             try {
                 renderCertificates(stale, container);
@@ -275,6 +297,7 @@ async function loadCertificates() {
                     renderError
                 );
             }
+
         }
 
         const errorMsg = document.createElement("p");
